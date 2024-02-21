@@ -120,7 +120,7 @@ public interface IContext {
     /**
      * 执行接收回调函数
      */
-    void invokeCompletedCallBack(Consumer<IContext> consumer);
+    void invokeCompletedCallBack();
 
     /**
      * 获取上下文参数

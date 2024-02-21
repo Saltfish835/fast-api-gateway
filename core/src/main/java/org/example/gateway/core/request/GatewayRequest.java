@@ -27,7 +27,7 @@ public class GatewayRequest implements IGatewayRequest{
     /**
      * 请求进入网关的结束时间
      */
-    private final long endTime;
+//    private final long endTime;
 
     /**
      * 字符集
@@ -118,25 +118,19 @@ public class GatewayRequest implements IGatewayRequest{
     private final RequestBuilder requestBuilder;
 
     public GatewayRequest(String uniqueId,
-                          long endTime,
                           Charset charset,
                           String clientIp,
                           String host,
-                          String path,
                           String uri,
                           HttpMethod httpMethod,
                           String contentType,
                           HttpHeaders httpHeaders,
-                          QueryStringDecoder queryStringDecoder,
-                          FullHttpRequest fullHttpRequest,
-                          RequestBuilder requestBuilder) {
+                          FullHttpRequest fullHttpRequest) {
         this.uniqueId = uniqueId;
         this.beginTime = TimeUtil.currentTimeMillis();
-        this.endTime = endTime;
         this.charset = charset;
         this.clientIp = clientIp;
         this.host = host;
-        this.path = queryStringDecoder.path();
         this.uri = uri;
         this.httpMethod = httpMethod;
         this.contentType = contentType;
@@ -144,6 +138,7 @@ public class GatewayRequest implements IGatewayRequest{
         this.queryStringDecoder = new QueryStringDecoder(uri, charset);
         this.fullHttpRequest = fullHttpRequest;
         this.requestBuilder = new RequestBuilder();
+        this.path = queryStringDecoder.path();
 
         this.modifyHost = host;
         this.modifyPath = path;
@@ -166,9 +161,9 @@ public class GatewayRequest implements IGatewayRequest{
         return beginTime;
     }
 
-    public long getEndTime() {
-        return endTime;
-    }
+//    public long getEndTime() {
+//        return endTime;
+//    }
 
     public Charset getCharset() {
         return charset;

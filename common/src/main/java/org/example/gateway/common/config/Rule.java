@@ -1,4 +1,4 @@
-package org.example.gateway.common.rule;
+package org.example.gateway.common.config;
 
 import java.io.Serializable;
 import java.util.HashSet;

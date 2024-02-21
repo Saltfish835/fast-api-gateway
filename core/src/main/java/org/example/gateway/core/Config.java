@@ -21,6 +21,36 @@ public class Config {
      */
     private boolean whenComplete = true;
 
+    /**
+     * 连接超时时间
+     */
+    private int httpConnectTimeout = 30 * 1000;
+
+    /**
+     * 请求超时时间
+     */
+    private int httpRequestTimeout = 30 * 1000;
+
+    /**
+     * 客户端请求重试次数
+     */
+    private int httpMaxRequestRetry = 2;
+
+    /**
+     * 客户端请求最大连接数
+     */
+    private int httpMaxContentions = 10000;
+
+    /**
+     * 客户端每个地址支持的最大连接数
+     */
+    private int httpConnectionsPerHost = 8000;
+
+    /**
+     * 客户端空闲连接超时时间
+     */
+    private int httpPooledConnectionIdleTimeout = 60 * 1000;
+
     public int getPort() {
         return port;
     }
@@ -83,5 +113,53 @@ public class Config {
 
     public void setWhenComplete(boolean whenComplete) {
         this.whenComplete = whenComplete;
+    }
+
+    public int getHttpConnectTimeout() {
+        return httpConnectTimeout;
+    }
+
+    public void setHttpConnectTimeout(int httpConnectTimeout) {
+        this.httpConnectTimeout = httpConnectTimeout;
+    }
+
+    public int getHttpRequestTimeout() {
+        return httpRequestTimeout;
+    }
+
+    public void setHttpRequestTimeout(int httpRequestTimeout) {
+        this.httpRequestTimeout = httpRequestTimeout;
+    }
+
+    public int getHttpMaxRequestRetry() {
+        return httpMaxRequestRetry;
+    }
+
+    public void setHttpMaxRequestRetry(int httpMaxRequestRetry) {
+        this.httpMaxRequestRetry = httpMaxRequestRetry;
+    }
+
+    public int getHttpMaxContentions() {
+        return httpMaxContentions;
+    }
+
+    public void setHttpMaxContentions(int httpMaxContentions) {
+        this.httpMaxContentions = httpMaxContentions;
+    }
+
+    public int getHttpConnectionsPerHost() {
+        return httpConnectionsPerHost;
+    }
+
+    public void setHttpConnectionsPerHost(int httpConnectionsPerHost) {
+        this.httpConnectionsPerHost = httpConnectionsPerHost;
+    }
+
+    public int getHttpPooledConnectionIdleTimeout() {
+        return httpPooledConnectionIdleTimeout;
+    }
+
+    public void setHttpPooledConnectionIdleTimeout(int httpPooledConnectionIdleTimeout) {
+        this.httpPooledConnectionIdleTimeout = httpPooledConnectionIdleTimeout;
     }
 }

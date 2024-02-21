@@ -2,7 +2,7 @@ package org.example.gateway.core.context;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ReferenceCountUtil;
-import org.example.gateway.common.rule.Rule;
+import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.utils.AssertUtil;
 import org.example.gateway.core.request.GatewayRequest;
 import org.example.gateway.core.response.GatewayResponse;

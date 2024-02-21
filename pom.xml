@@ -23,11 +23,11 @@
   <url>http://www.example.com</url>
 
   <properties>
-    <maven.compiler.source>15</maven.compiler.source>
-    <maven.compiler.target>15</maven.compiler.target>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <netty.version>4.1.51.Final</netty.version>
+    <netty.version>4.1.77.Final</netty.version>
     <async-http-client.version>2.0.37</async-http-client.version>
     <biz.paluch.redis.version>4.4.6.Final</biz.paluch.redis.version>
     <lmax.version>3.3.4</lmax.version>
