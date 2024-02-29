@@ -10,13 +10,19 @@
         <module name="register-center" />
         <module name="common" />
         <module name="dubbo-server" />
+        <module name="register-cneter-api" />
+        <module name="register-center-api" />
+        <module name="register-center-nacos-impl" />
         <module name="http-server" />
         <module name="client" />
+        <module name="config-center-api" />
         <module name="config-center" />
+        <module name="config-center-nacos-impl" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="dubbo" target="1.8" />
+      <module name="register-cneter-api" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

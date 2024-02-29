@@ -8,13 +8,8 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.example.gateway</groupId>
     <artifactId>common</artifactId>
-
-    <name>common</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

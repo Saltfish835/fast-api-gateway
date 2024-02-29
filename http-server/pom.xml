@@ -2,15 +2,16 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>fast-api-gateway</artifactId>
+    <groupId>org.example</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
-
-  <groupId>org.example.gateway</groupId>
   <artifactId>http-server</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-  <name>http-server</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,7 +25,34 @@
       <artifactId>spring-boot-starter-web</artifactId>
       <version>2.1.7.RELEASE</version>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.springframework</groupId>-->
+<!--      <artifactId>spring-core</artifactId>-->
+<!--      <version>5.3.18</version>-->
+<!--    </dependency>-->
+    <dependency>
+      <groupId>org.example</groupId>
+      <artifactId>client</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.1.7.RELEASE</version>
+        <configuration>
+          <mainClass>org.example.gateway.http.server.App</mainClass>
+          <addResources>true</addResources>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

@@ -16,18 +16,19 @@
     <module>client</module>
     <module>dubbo-server</module>
     <module>http-server</module>
+    <module>register-center/register-center-api</module>
+    <module>register-center/register-center-nacos-impl</module>
+    <module>config-center/config-center-api</module>
+    <module>config-center/config-center-nacos-impl</module>
   </modules>
 
-  <name>fast-api-gateway</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
 
   <properties>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <netty.version>4.1.77.Final</netty.version>
+    <netty.version>4.1.51.Final</netty.version>
     <async-http-client.version>2.0.37</async-http-client.version>
     <biz.paluch.redis.version>4.4.6.Final</biz.paluch.redis.version>
     <lmax.version>3.3.4</lmax.version>

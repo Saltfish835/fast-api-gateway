@@ -2,6 +2,7 @@ package org.example.gateway.common.config;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,6 +25,21 @@ public class Rule implements Comparable<Rule>, Serializable {
     private String protocol;
 
     /**
+     * 后端服务ID
+     */
+    private String serviceId;
+
+    /**
+     * 请求前缀
+     */
+    private String prefix;
+
+    /**
+     * 路径集合
+     */
+    private List<String> paths;
+
+    /**
      * 规则优先级
      */
     private Integer order;
@@ -38,12 +54,78 @@ public class Rule implements Comparable<Rule>, Serializable {
         super();
     }
 
-    public Rule(String id, String name, String protocol, Integer order, Set<FilterConfig> filterConfigs) {
-        super();
+    public Rule(String id, String name, String protocol, String serviceId, String prefix, List<String> paths, Integer order, Set<FilterConfig> filterConfigs) {
         this.id = id;
         this.name = name;
         this.protocol = protocol;
+        this.serviceId = serviceId;
+        this.prefix = prefix;
+        this.paths = paths;
         this.order = order;
+        this.filterConfigs = filterConfigs;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public List<String> getPaths() {
+        return paths;
+    }
+
+    public void setPaths(List<String> paths) {
+        this.paths = paths;
+    }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
+    public Set<FilterConfig> getFilterConfigs() {
+        return filterConfigs;
+    }
+
+    public void setFilterConfigs(Set<FilterConfig> filterConfigs) {
         this.filterConfigs = filterConfigs;
     }
 
@@ -58,25 +140,6 @@ public class Rule implements Comparable<Rule>, Serializable {
         return compare;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public Integer getOrder() {
-        return order;
-    }
-
-    public Set<FilterConfig> getFilterConfigs() {
-        return filterConfigs;
-    }
 
     /**
      * 添加配置
