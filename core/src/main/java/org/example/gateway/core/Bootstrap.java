@@ -40,7 +40,7 @@ public class Bootstrap {
 //            configCenter = configCenterTmp;
 //            break;
 //        }
-        configCenter = (ConfigCenter)GatewayServiceLoader.load(ConfigCenter.class);
+        configCenter = GatewayServiceLoader.load(ConfigCenter.class);
         if(configCenter == null) {
             logger.error("not found ConfigCenter impl");
             throw new RuntimeException("not found ConfigCenter impl");
@@ -93,6 +93,7 @@ public class Bootstrap {
                         JSON.toJSON(serviceInstanceSet));
                 final DynamicConfigManager dynamicConfigManager = DynamicConfigManager.getInstance();
                 dynamicConfigManager.addServiceInstance(serviceDefinition.getUniqueId(), serviceInstanceSet);
+                dynamicConfigManager.putServiceDefinition(serviceDefinition.getUniqueId(), serviceDefinition);
             }
         });
         return registerCenter;
