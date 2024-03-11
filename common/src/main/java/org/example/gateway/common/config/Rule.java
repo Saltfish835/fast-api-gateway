@@ -49,6 +49,11 @@ public class Rule implements Comparable<Rule>, Serializable {
      */
     private Set<FilterConfig> filterConfigs = new HashSet<>();
 
+    /**
+     * 重试次数
+     */
+    private RetryConfig retryConfig = new RetryConfig();
+
 
     public Rule() {
         super();
@@ -127,6 +132,14 @@ public class Rule implements Comparable<Rule>, Serializable {
 
     public void setFilterConfigs(Set<FilterConfig> filterConfigs) {
         this.filterConfigs = filterConfigs;
+    }
+
+    public RetryConfig getRetryConfig() {
+        return retryConfig;
+    }
+
+    public void setRetryConfig(RetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
     }
 
     @Override
@@ -247,4 +260,27 @@ public class Rule implements Comparable<Rule>, Serializable {
             return Objects.hash(id);
         }
     }
+
+
+
+    /**
+     * 重试配置信息
+     */
+    public static class RetryConfig{
+
+        /**
+         * 重试次数
+         */
+        private int times;
+
+        public int getTimes() {
+            return times;
+        }
+
+        public void setTimes(int times) {
+            this.times = times;
+        }
+    }
+
+
 }

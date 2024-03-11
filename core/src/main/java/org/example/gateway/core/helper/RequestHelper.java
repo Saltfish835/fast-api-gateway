@@ -36,13 +36,13 @@ public class RequestHelper {
         // 根据请求对象获取规则
         final Rule rule = getRule(gateWayRequest, serviceDefinition.getServiceId());
 
-        //	构建我们而定GateWayContext对象
+        //	构建我们GatewayContext对象
         GatewayContext gatewayContext = new GatewayContext(
                 serviceDefinition.getProtocol(),
                 ctx,
                 HttpUtil.isKeepAlive(request),
                 gateWayRequest,
-                rule);
+                rule, 0);
 
 
         //后续服务发现做完，这里都要改成动态的

@@ -2,6 +2,7 @@ package org.example.gateway.core.filter.router;
 
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
+import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ConnectException;
@@ -16,6 +17,7 @@ import org.example.gateway.core.response.GatewayResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
@@ -46,7 +48,7 @@ public class RouterFilter implements Filter {
 
 
     /**
-     * 处理响应
+     * 向客户端返回响应
      * @param request
      * @param response
      * @param throwable
@@ -55,6 +57,13 @@ public class RouterFilter implements Filter {
     private void complete(Request request, Response response, Throwable throwable, GatewayContext gatewayContext) {
         // 释放请求资源
         gatewayContext.releaseRequest();
+        // 当前请求超时或者出现IO异常则重试
+        final int currentRetryTimes = gatewayContext.getCurrentRetryTimes();
+        final int confRetryTimes = gatewayContext.getRule().getRetryConfig().getTimes();
+        if((throwable instanceof TimeoutException || throwable instanceof IOException) && currentRetryTimes <= confRetryTimes) {
+            doRetry(gatewayContext, currentRetryTimes);
+            return;
+        }
         try {
             if(Objects.nonNull(throwable)) {
                 // 处理异常
@@ -77,6 +86,22 @@ public class RouterFilter implements Filter {
             // 不管成功失败都需要向客户端响应请求
             gatewayContext.written(); // 记录请求阶段
             ResponseHelper.writeResponse(gatewayContext); // 响应
+        }
+    }
+
+
+    /**
+     * 请求重试
+     * @param gatewayContext
+     * @param currentRetryTimes
+     */
+    private void doRetry(GatewayContext gatewayContext, int currentRetryTimes) {
+        logger.info("current retry times {}", currentRetryTimes);
+        gatewayContext.setCurrentRetryTimes(currentRetryTimes+1);
+        try {
+            doFilter(gatewayContext);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

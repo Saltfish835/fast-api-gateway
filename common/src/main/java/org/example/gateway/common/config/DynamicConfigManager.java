@@ -1,10 +1,8 @@
 package org.example.gateway.common.config;
 
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 动态服务缓存配置管理类
