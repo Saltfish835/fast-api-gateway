@@ -54,6 +54,11 @@ public class Rule implements Comparable<Rule>, Serializable {
      */
     private RetryConfig retryConfig = new RetryConfig();
 
+    /**
+     * 限流配置
+     */
+    private Set<FlowCtlConfig> flowCtlConfigs = new HashSet<>();
+
 
     public Rule() {
         super();
@@ -140,6 +145,14 @@ public class Rule implements Comparable<Rule>, Serializable {
 
     public void setRetryConfig(RetryConfig retryConfig) {
         this.retryConfig = retryConfig;
+    }
+
+    public Set<FlowCtlConfig> getFlowCtlConfigs() {
+        return flowCtlConfigs;
+    }
+
+    public void setFlowCtlConfigs(Set<FlowCtlConfig> flowCtlConfigs) {
+        this.flowCtlConfigs = flowCtlConfigs;
     }
 
     @Override
@@ -282,5 +295,63 @@ public class Rule implements Comparable<Rule>, Serializable {
         }
     }
 
+
+    /**
+     * 限流配置信息
+     */
+    public static class FlowCtlConfig {
+
+        /**
+         * 限流类型
+         */
+        private String type;
+
+        /**
+         * 限流对象的值
+         */
+        private String value;
+
+        /**
+         * 限流模式，单机or分布式
+         */
+        private String model;
+
+        /**
+         * 限流规则
+         */
+        private String config;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getModel() {
+            return model;
+        }
+
+        public void setModel(String model) {
+            this.model = model;
+        }
+
+        public String getConfig() {
+            return config;
+        }
+
+        public void setConfig(String config) {
+            this.config = config;
+        }
+    }
 
 }

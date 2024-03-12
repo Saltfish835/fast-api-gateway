@@ -2,7 +2,6 @@ package org.example.gateway.core.filter.router;
 
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
-import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ConnectException;

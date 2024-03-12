@@ -59,17 +59,13 @@ public class GatewayFilterChainFactory implements FilterFactory{
         final ArrayList<Filter> filters = new ArrayList<>();
         final Rule rule = ctx.getRule();
         if(rule != null) {
-            final Set<Rule.FilterConfig> filterConfigs = rule.getFilterConfigs();
-            final Iterator<Rule.FilterConfig> iterator = filterConfigs.iterator();
-            Rule.FilterConfig filterConfig;
-            while(iterator.hasNext()) {
-                filterConfig = iterator.next();
+            for(Rule.FilterConfig filterConfig : rule.getFilterConfigs()) {
                 if(filterConfig == null) {
                     continue;
                 }
-                final String filterId = filterConfig.getId();
-                if(StringUtils.isNotEmpty(filterId) && getFilterInfo(filterId) != null) {
-                    final Filter filter = getFilterInfo(filterId);
+                final String filterConfigId = filterConfig.getId();
+                if(StringUtils.isNotEmpty(filterConfigId) && getFilterInfo(filterConfigId) != null) {
+                    final Filter filter = getFilterInfo(filterConfigId);
                     filters.add(filter);
                 }
             }
