@@ -59,6 +59,11 @@ public class Rule implements Comparable<Rule>, Serializable {
      */
     private Set<FlowCtlConfig> flowCtlConfigs = new HashSet<>();
 
+    /**
+     * 熔断配置
+     */
+    private Set<HystrixConfig> hystrixConfigs = new HashSet<>();
+
 
     public Rule() {
         super();
@@ -153,6 +158,14 @@ public class Rule implements Comparable<Rule>, Serializable {
 
     public void setFlowCtlConfigs(Set<FlowCtlConfig> flowCtlConfigs) {
         this.flowCtlConfigs = flowCtlConfigs;
+    }
+
+    public Set<HystrixConfig> getHystrixConfigs() {
+        return hystrixConfigs;
+    }
+
+    public void setHystrixConfigs(Set<HystrixConfig> hystrixConfigs) {
+        this.hystrixConfigs = hystrixConfigs;
     }
 
     @Override
@@ -351,6 +364,49 @@ public class Rule implements Comparable<Rule>, Serializable {
 
         public void setConfig(String config) {
             this.config = config;
+        }
+    }
+
+
+    /**
+     * 熔断配置信息
+     */
+    public static class HystrixConfig {
+        private String path;
+        private int timeoutInMilliseconds;
+        private int threadCoreSize;
+        private String fallbackResponse;
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public int getTimeoutInMilliseconds() {
+            return timeoutInMilliseconds;
+        }
+
+        public void setTimeoutInMilliseconds(int timeoutInMilliseconds) {
+            this.timeoutInMilliseconds = timeoutInMilliseconds;
+        }
+
+        public int getThreadCoreSize() {
+            return threadCoreSize;
+        }
+
+        public void setThreadCoreSize(int threadCoreSize) {
+            this.threadCoreSize = threadCoreSize;
+        }
+
+        public String getFallbackResponse() {
+            return fallbackResponse;
+        }
+
+        public void setFallbackResponse(String fallbackResponse) {
+            this.fallbackResponse = fallbackResponse;
         }
     }
 

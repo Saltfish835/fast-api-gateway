@@ -17,7 +17,6 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
         FullHttpRequest request = (FullHttpRequest) msg;
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper();
         httpRequestWrapper.setRequest(request);
@@ -25,5 +24,11 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
         // 将请求的处理委托出去
         nettyProcessor.process(httpRequestWrapper);
+    }
+
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
     }
 }

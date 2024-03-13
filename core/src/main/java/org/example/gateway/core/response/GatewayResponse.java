@@ -128,6 +128,7 @@ public class GatewayResponse {
         final GatewayResponse res = new GatewayResponse();
         res.setHttpResponseStatus(ResponseCode.SUCCESS.getStatus());
         res.putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON + ";charset=utf-8");
+        res.setContent(JSONUtil.toJSONString(objectNode));
         return res;
     }
 

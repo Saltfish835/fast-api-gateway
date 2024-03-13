@@ -50,7 +50,7 @@ public class FlowCtlByPathRule implements IGatewayFlowCtlRule{
         }
         // 拿到流控的配置
         Map<String, Integer> configMap = JSON.parseObject(flowCtlConfig.getConfig(), Map.class);
-        if(!configMap.containsKey(FilterConst.FLOW_CTL_LIMIT_DURATION) || configMap.containsKey(FilterConst.FLOW_CTL_LIMIT_DURATION)) {
+        if(!configMap.containsKey(FilterConst.FLOW_CTL_LIMIT_DURATION) || !configMap.containsKey(FilterConst.FLOW_CTL_LIMIT_DURATION)) {
             // 没有这两项配置则不进行流控
             return;
         }
