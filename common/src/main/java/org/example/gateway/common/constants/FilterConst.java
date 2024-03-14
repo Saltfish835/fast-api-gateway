@@ -45,4 +45,8 @@ public interface FilterConst {
     String MONITOR_END_FILTER_ID = "monitor_end_filter";
     String MONITOR_END_FILTER_NAME = "monitor_end_filter";
     int MONITOR_END_FILTER_ORDER = Integer.MAX_VALUE;
+
+    String MOCK_FILTER_ID = "mock_filter";
+    String MOCK_FILTER_NAME = "mock_filter";
+    int MOCK_FILTER_ORDER = 0;
 }

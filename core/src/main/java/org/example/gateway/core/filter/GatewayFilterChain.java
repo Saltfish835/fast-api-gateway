@@ -31,6 +31,10 @@ public class GatewayFilterChain {
         try{
             for(Filter filter : filters) {
                 filter.doFilter(ctx);
+                // 如果当前请求已经终止，则没必要继续执行
+                if(ctx.isTerminated()) {
+                    break;
+                }
             }
         }catch (Exception e) {
             logger.error("执行过滤器发生异常,异常信息：{}",e.getMessage());

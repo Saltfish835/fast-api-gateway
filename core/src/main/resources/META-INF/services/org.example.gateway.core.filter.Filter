@@ -3,3 +3,6 @@ org.example.gateway.core.filter.router.RouterFilter
 org.example.gateway.core.filter.flowCtl.FlowCtlFilter
 org.example.gateway.core.filter.user.UserAuthFilter
 org.example.gateway.core.filter.gray.GrayFilter
+org.example.gateway.core.filter.monitor.MonitorFilter
+org.example.gateway.core.filter.monitor.MonitorEndFilter
+org.example.gateway.core.filter.mock.MockFilter

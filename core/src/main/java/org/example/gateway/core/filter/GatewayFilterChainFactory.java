@@ -58,8 +58,13 @@ public class GatewayFilterChainFactory implements FilterFactory{
     public GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception {
         final GatewayFilterChain gatewayFilterChain = new GatewayFilterChain();
         final ArrayList<Filter> filters = new ArrayList<>();
-        // 所有流量都会判断
+        // 添加灰度发布过滤器
         filters.add(getFilterInfo(FilterConst.GRAY_FILTER_ID));
+        // 添加监控过滤器
+        filters.add(getFilterInfo(FilterConst.MONITOR_FILTER_ID));
+        filters.add(getFilterInfo(FilterConst.MONITOR_END_FILTER_ID));
+        // 添加mock过滤器
+        filters.add(getFilterInfo(FilterConst.MOCK_FILTER_ID));
         final Rule rule = ctx.getRule();
         if(rule != null) {
             for(Rule.FilterConfig filterConfig : rule.getFilterConfigs()) {
