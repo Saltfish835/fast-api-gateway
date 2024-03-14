@@ -1,5 +1,6 @@
 package org.example.gateway.core.context;
 
+import io.micrometer.core.instrument.Timer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ReferenceCountUtil;
 import org.example.gateway.common.config.Rule;
@@ -21,6 +22,8 @@ public class GatewayContext extends BaseContext{
     private int currentRetryTimes;
 
     private boolean gray;
+
+    private Timer.Sample timerSample;
 
     public GatewayContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive, GatewayRequest request,
                           Rule rule, int currentRetryTimes) {
@@ -174,5 +177,13 @@ public class GatewayContext extends BaseContext{
 
     public void setGray(boolean gray) {
         this.gray = gray;
+    }
+
+    public Timer.Sample getTimerSample() {
+        return timerSample;
+    }
+
+    public void setTimerSample(Timer.Sample timerSample) {
+        this.timerSample = timerSample;
     }
 }

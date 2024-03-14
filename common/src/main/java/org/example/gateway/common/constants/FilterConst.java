@@ -35,4 +35,14 @@ public interface FilterConst {
     String GRAY_FILTER_ID = "gray_filter";
     String GRAY_FILTER_NAME = "gray_filter";
     int GRAY_FILTER_ORDER = 0;
+
+    // 最新执行
+    String MONITOR_FILTER_ID = "monitor_filter";
+    String MONITOR_FILTER_NAME = "monitor_filter";
+    int MONITOR_FILTER_ORDER = -1;
+
+    // 最后执行
+    String MONITOR_END_FILTER_ID = "monitor_end_filter";
+    String MONITOR_END_FILTER_NAME = "monitor_end_filter";
+    int MONITOR_END_FILTER_ORDER = Integer.MAX_VALUE;
 }

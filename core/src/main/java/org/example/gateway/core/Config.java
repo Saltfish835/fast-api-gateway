@@ -4,6 +4,8 @@ public class Config {
 
     private int port = 8888;
 
+    private int prometheusPort = 18000;
+
     private String applicationName = "fast-api-gateway";
 
     private String registryAddress = "127.0.0.1:8848";
@@ -161,5 +163,13 @@ public class Config {
 
     public void setHttpPooledConnectionIdleTimeout(int httpPooledConnectionIdleTimeout) {
         this.httpPooledConnectionIdleTimeout = httpPooledConnectionIdleTimeout;
+    }
+
+    public int getPrometheusPort() {
+        return prometheusPort;
+    }
+
+    public void setPrometheusPort(int prometheusPort) {
+        this.prometheusPort = prometheusPort;
     }
 }
