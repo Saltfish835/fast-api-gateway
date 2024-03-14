@@ -29,7 +29,7 @@ public class LoadBalanceFilter implements Filter {
         // 获取负载均衡的规则
         final IGatewayLoadBalanceRule loadBalanceRule = getLoadBalanceRule(ctx);
         // 根据负载均衡的规则拿到一个服务实例
-        final ServiceInstance serviceInstance = loadBalanceRule.choose(serviceId);
+        final ServiceInstance serviceInstance = loadBalanceRule.choose(serviceId, ctx.isGray());
         final GatewayRequest request = ctx.getRequest();
         if(serviceInstance != null && request != null) {
             String host = serviceInstance.getIp() + ":" + serviceInstance.getPort();

@@ -1,8 +1,11 @@
 package org.example.gateway.common.config;
 
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 动态服务缓存配置管理类
@@ -54,8 +57,19 @@ public class DynamicConfigManager {
 
     /***************** 	对服务实例缓存进行操作的系列方法 	***************/
 
-    public Set<ServiceInstance> getServiceInstanceByUniqueId(String uniqueId){
-        return serviceInstanceMap.get(uniqueId);
+    public Set<ServiceInstance> getServiceInstanceByUniqueId(String uniqueId, boolean gray){
+        final Set<ServiceInstance> serviceInstances = serviceInstanceMap.get(uniqueId);
+        if(CollectionUtils.isEmpty(serviceInstances)) {
+            return Collections.emptySet();
+        }
+        // 如果当前是灰度流量
+        if(gray) {
+            // 返回灰度服务
+            final Set<ServiceInstance> grayInstanceSet = serviceInstances.stream().filter(ServiceInstance::isGray).collect(Collectors.toSet());
+            return grayInstanceSet;
+        }
+        // 如果不是灰度服务就正常返回
+        return serviceInstances;
     }
 
     public void addServiceInstance(String uniqueId, ServiceInstance serviceInstance) {

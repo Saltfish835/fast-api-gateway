@@ -31,4 +31,8 @@ public interface FilterConst {
     String USER_AUTH_FILTER_ID = "user_auth_filter";
     String USER_AUTH_FILTER_NAME = "user_auth_filter";
     int USER_AUTH_FILTER_ORDER = 1;
+
+    String GRAY_FILTER_ID = "gray_filter";
+    String GRAY_FILTER_NAME = "gray_filter";
+    int GRAY_FILTER_ORDER = 0;
 }

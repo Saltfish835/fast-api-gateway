@@ -20,6 +20,8 @@ public class GatewayContext extends BaseContext{
 
     private int currentRetryTimes;
 
+    private boolean gray;
+
     public GatewayContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive, GatewayRequest request,
                           Rule rule, int currentRetryTimes) {
         super(protocol, nettyCtx, keepAlive);
@@ -164,5 +166,13 @@ public class GatewayContext extends BaseContext{
 
     public void setCurrentRetryTimes(int currentRetryTimes) {
         this.currentRetryTimes = currentRetryTimes;
+    }
+
+    public boolean isGray() {
+        return gray;
+    }
+
+    public void setGray(boolean gray) {
+        this.gray = gray;
     }
 }

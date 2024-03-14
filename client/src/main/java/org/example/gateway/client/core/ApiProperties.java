@@ -15,6 +15,11 @@ public class ApiProperties {
      */
     private String env = "dev";
 
+    /**
+     * 是否是灰度服务
+     */
+    private boolean gray;
+
     public String getRegisterAddress() {
         return registerAddress;
     }
@@ -29,6 +34,14 @@ public class ApiProperties {
 
     public void setEnv(String env) {
         this.env = env;
+    }
+
+    public boolean isGray() {
+        return gray;
+    }
+
+    public void setGray(boolean gray) {
+        this.gray = gray;
     }
 
     @Override

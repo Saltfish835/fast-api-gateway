@@ -52,6 +52,11 @@ public class ServiceInstance implements Serializable {
      */
     protected String version;
 
+    /**
+     * 是否是灰度服务
+     */
+    private boolean gray;
+
     public ServiceInstance() {
         super();
     }
@@ -136,6 +141,13 @@ public class ServiceInstance implements Serializable {
         return serialVersionUID;
     }
 
+    public boolean isGray() {
+        return gray;
+    }
+
+    public void setGray(boolean gray) {
+        this.gray = gray;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -24,8 +24,7 @@ public class PingController {
     @ApiInvoker(path = "/http-server/ping")
     @GetMapping("/http-server/ping")
     public String ping() throws InterruptedException {
-        Thread.sleep(6000);
         logger.info("{}", apiProperties);
-        return "pong";
+        return "pong false gray";
     }
 }

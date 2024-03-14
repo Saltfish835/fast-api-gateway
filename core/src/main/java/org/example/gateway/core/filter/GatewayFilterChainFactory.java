@@ -2,6 +2,7 @@ package org.example.gateway.core.filter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.example.gateway.common.config.Rule;
+import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.router.RouterFilter;
 import org.slf4j.Logger;
@@ -57,6 +58,8 @@ public class GatewayFilterChainFactory implements FilterFactory{
     public GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception {
         final GatewayFilterChain gatewayFilterChain = new GatewayFilterChain();
         final ArrayList<Filter> filters = new ArrayList<>();
+        // 所有流量都会判断
+        filters.add(getFilterInfo(FilterConst.GRAY_FILTER_ID));
         final Rule rule = ctx.getRule();
         if(rule != null) {
             for(Rule.FilterConfig filterConfig : rule.getFilterConfigs()) {
