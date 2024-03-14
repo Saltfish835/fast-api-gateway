@@ -113,6 +113,12 @@ public class GatewayRequest implements IGatewayRequest{
     private String modifyPath;
 
     /**
+     * 用户id
+     */
+    private long userId;
+
+
+    /**
      * 构建下游http请求的构建器
      */
     private final RequestBuilder requestBuilder;
@@ -292,6 +298,14 @@ public class GatewayRequest implements IGatewayRequest{
         return modifyScheme;
     }
 
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
     public RequestBuilder getRequestBuilder() {
         return requestBuilder;
     }
@@ -356,6 +370,7 @@ public class GatewayRequest implements IGatewayRequest{
     @Override
     public Request build() {
         requestBuilder.setUrl(getFinalUrl());
+        requestBuilder.setHeader("userId", String.valueOf(userId));
         return requestBuilder.build();
     }
 }

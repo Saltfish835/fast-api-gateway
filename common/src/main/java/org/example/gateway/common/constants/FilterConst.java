@@ -27,4 +27,8 @@ public interface FilterConst {
 
     String FLOW_CTL_MODEL_DISTRIBUTED = "distributed";
     String FLOW_CTL_MODEL_SINGLETON = "Singleton";
+
+    String USER_AUTH_FILTER_ID = "user_auth_filter";
+    String USER_AUTH_FILTER_NAME = "user_auth_filter";
+    int USER_AUTH_FILTER_ORDER = 1;
 }

@@ -73,5 +73,11 @@
             <artifactId>hystrix-javanica</artifactId>
             <version>${hystrix.javanica.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.6.0</version>
+        </dependency>
     </dependencies>
 </project>
