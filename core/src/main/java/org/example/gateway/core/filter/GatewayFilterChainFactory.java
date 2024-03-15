@@ -1,21 +1,25 @@
 package org.example.gateway.core.filter;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.commons.lang3.StringUtils;
 import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
-import org.example.gateway.core.filter.router.RouterFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class GatewayFilterChainFactory implements FilterFactory{
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayFilterChainFactory.class);
 
     private Map<String, Filter> processorFilterIdMap = new ConcurrentHashMap<>();
+
+    private Cache<String,GatewayFilterChain> chainCache = Caffeine.newBuilder().recordStats().expireAfterWrite(10, TimeUnit.MINUTES).build();
 
     /**
      * 单例
@@ -48,6 +52,7 @@ public class GatewayFilterChainFactory implements FilterFactory{
     }
 
 
+
     /**
      * 构建过滤器链
      * @param ctx
@@ -56,6 +61,13 @@ public class GatewayFilterChainFactory implements FilterFactory{
      */
     @Override
     public GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception {
+        return chainCache.get(ctx.getRule().getId(), k -> {
+            return doBuildFilterChain(ctx.getRule());
+        });
+    }
+
+
+    private GatewayFilterChain doBuildFilterChain(Rule rule) {
         final GatewayFilterChain gatewayFilterChain = new GatewayFilterChain();
         final ArrayList<Filter> filters = new ArrayList<>();
         // 添加灰度发布过滤器
@@ -65,7 +77,6 @@ public class GatewayFilterChainFactory implements FilterFactory{
         filters.add(getFilterInfo(FilterConst.MONITOR_END_FILTER_ID));
         // 添加mock过滤器
         filters.add(getFilterInfo(FilterConst.MOCK_FILTER_ID));
-        final Rule rule = ctx.getRule();
         if(rule != null) {
             for(Rule.FilterConfig filterConfig : rule.getFilterConfigs()) {
                 if(filterConfig == null) {
@@ -79,14 +90,15 @@ public class GatewayFilterChainFactory implements FilterFactory{
             }
         }
         // 最后一个固定是路由过滤器
-        filters.add(new RouterFilter());
+        filters.add(getFilterInfo(FilterConst.ROUTER_FILTER_ID));
         filters.sort(Comparator.comparingInt(Filter::getOrder));
         gatewayFilterChain.addFilterList(filters);
         return gatewayFilterChain;
     }
 
+
     @Override
-    public Filter getFilterInfo(String filterId) throws Exception {
+    public Filter getFilterInfo(String filterId){
         return processorFilterIdMap.get(filterId);
     }
 }
