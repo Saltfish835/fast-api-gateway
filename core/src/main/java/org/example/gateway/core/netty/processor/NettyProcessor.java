@@ -8,4 +8,8 @@ import org.example.gateway.core.context.HttpRequestWrapper;
 public interface NettyProcessor {
 
     void process(HttpRequestWrapper requestWrapper);
+
+    void start();
+
+    void shutdown();
 }

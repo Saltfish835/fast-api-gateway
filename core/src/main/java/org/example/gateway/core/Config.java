@@ -1,5 +1,7 @@
 package org.example.gateway.core;
 
+import com.lmax.disruptor.*;
+
 public class Config {
 
     private int port = 8888;
@@ -52,6 +54,29 @@ public class Config {
      * 客户端空闲连接超时时间
      */
     private int httpPooledConnectionIdleTimeout = 60 * 1000;
+
+    private String bufferType = "parallel";
+
+    private int bufferSize = 1024 * 16;
+
+    private int processThread = Runtime.getRuntime().availableProcessors();
+
+    private String waitStrategy = "blocking";
+
+    public WaitStrategy getWaitStrategy() {
+        switch (waitStrategy) {
+            case "blocking":
+                return new BlockingWaitStrategy();
+            case "busySpin":
+                return new BusySpinWaitStrategy();
+            case "yielding":
+                return new YieldingWaitStrategy();
+            case "sleeping":
+                return new SleepingWaitStrategy();
+            default:
+                return new BlockingWaitStrategy();
+        }
+    }
 
     public int getPort() {
         return port;
@@ -171,5 +196,29 @@ public class Config {
 
     public void setPrometheusPort(int prometheusPort) {
         this.prometheusPort = prometheusPort;
+    }
+
+    public String getBufferType() {
+        return bufferType;
+    }
+
+    public void setBufferType(String bufferType) {
+        this.bufferType = bufferType;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
+
+    public int getProcessThread() {
+        return processThread;
+    }
+
+    public void setProcessThread(int processThread) {
+        this.processThread = processThread;
     }
 }

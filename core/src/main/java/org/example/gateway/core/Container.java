@@ -1,7 +1,9 @@
 package org.example.gateway.core;
 
+import org.example.gateway.common.constants.GatewayConst;
 import org.example.gateway.core.netty.NettyHttpClient;
 import org.example.gateway.core.netty.NettyHttpServer;
+import org.example.gateway.core.netty.processor.DisruptorNettyCoreProcessor;
 import org.example.gateway.core.netty.processor.NettyProcessor;
 import org.example.gateway.core.netty.processor.NettyCoreProcessor;
 import org.slf4j.Logger;
@@ -42,6 +44,12 @@ public class Container implements LifeCycle{
 
     @Override
     public void init() {
+        final NettyCoreProcessor nettyCoreProcessor = new NettyCoreProcessor();
+        if(GatewayConst.BUFFER_TYPE_PARALLEL.equalsIgnoreCase(config.getBufferType())) {
+            this.nettyProcessor = new DisruptorNettyCoreProcessor(config, nettyCoreProcessor);
+        }else {
+            this.nettyProcessor = nettyCoreProcessor;
+        }
         nettyProcessor = new NettyCoreProcessor();
         nettyHttpServer = new NettyHttpServer(config, nettyProcessor);
         nettyHttpClient = new NettyHttpClient(config, nettyHttpServer.getEventLoopGroupWorker());
@@ -49,6 +57,7 @@ public class Container implements LifeCycle{
 
     @Override
     public void start() {
+        nettyProcessor.start();
         nettyHttpServer.start();
         nettyHttpClient.start();
         logger.info("fast-api-gateway started!");
@@ -56,6 +65,7 @@ public class Container implements LifeCycle{
 
     @Override
     public void shutdown() {
+        nettyProcessor.shutdown();
         nettyHttpServer.shutdown();
         nettyHttpClient.shutdown();
     }
