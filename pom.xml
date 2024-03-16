@@ -20,6 +20,7 @@
     <module>register-center/register-center-nacos-impl</module>
     <module>config-center/config-center-api</module>
     <module>config-center/config-center-nacos-impl</module>
+      <module>user-service</module>
   </modules>
 
 

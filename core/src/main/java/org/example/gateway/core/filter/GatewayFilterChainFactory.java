@@ -19,11 +19,9 @@ public class GatewayFilterChainFactory implements FilterFactory{
 
     private Map<String, Filter> processorFilterIdMap = new ConcurrentHashMap<>();
 
-    private Cache<String,GatewayFilterChain> chainCache = Caffeine.newBuilder().recordStats().expireAfterWrite(10, TimeUnit.MINUTES).build();
+    private Cache<String,GatewayFilterChain> chainCache = Caffeine.newBuilder().recordStats()
+            .expireAfterWrite(10, TimeUnit.MINUTES).build(); // 缓存的过期时间10min
 
-    /**
-     * 单例
-     */
     private static class SingletonInstance {
         private static final GatewayFilterChainFactory INSTANCE  = new GatewayFilterChainFactory();
     }
@@ -61,6 +59,7 @@ public class GatewayFilterChainFactory implements FilterFactory{
      */
     @Override
     public GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception {
+        // 先从缓存中拿， 如果不存在则构建
         return chainCache.get(ctx.getRule().getId(), k -> {
             return doBuildFilterChain(ctx.getRule());
         });
@@ -70,13 +69,9 @@ public class GatewayFilterChainFactory implements FilterFactory{
     private GatewayFilterChain doBuildFilterChain(Rule rule) {
         final GatewayFilterChain gatewayFilterChain = new GatewayFilterChain();
         final ArrayList<Filter> filters = new ArrayList<>();
-        // 添加灰度发布过滤器
-        filters.add(getFilterInfo(FilterConst.GRAY_FILTER_ID));
         // 添加监控过滤器
         filters.add(getFilterInfo(FilterConst.MONITOR_FILTER_ID));
         filters.add(getFilterInfo(FilterConst.MONITOR_END_FILTER_ID));
-        // 添加mock过滤器
-        filters.add(getFilterInfo(FilterConst.MOCK_FILTER_ID));
         if(rule != null) {
             for(Rule.FilterConfig filterConfig : rule.getFilterConfigs()) {
                 if(filterConfig == null) {
@@ -89,7 +84,7 @@ public class GatewayFilterChainFactory implements FilterFactory{
                 }
             }
         }
-        // 最后一个固定是路由过滤器
+        // 添加路由过滤器
         filters.add(getFilterInfo(FilterConst.ROUTER_FILTER_ID));
         filters.sort(Comparator.comparingInt(Filter::getOrder));
         gatewayFilterChain.addFilterList(filters);

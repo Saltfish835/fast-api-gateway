@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-@FilterAspect(id = FilterConst.MOCK_FILTER_ID, name = FilterConst.MOCK_FILTER_NAME)
+@FilterAspect(id = FilterConst.MOCK_FILTER_ID, name = FilterConst.MOCK_FILTER_NAME, order = FilterConst.MOCK_FILTER_ORDER)
 public class MockFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(MockFilter.class);

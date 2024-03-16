@@ -13,19 +13,19 @@ public class GrayFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
-        // 请求头中带有gray，认定其为灰度流量
+        // 测试用：请求头中带有gray，认定其为灰度流量
         final String gray = ctx.getRequest().getHttpHeaders().get("gray");
         if("true".equalsIgnoreCase(gray)) {
             // 后续会转发给灰度服务
             ctx.setGray(true);
-        }
-
-        // 随机选取小部分流量作为灰度流量
-        final String clientIp = ctx.getRequest().getClientIp();
-        final int mod = clientIp.hashCode() & (1024 - 1); // 等价于对1024取模
-        if(mod == 1) {
-            // 1024分之一的概率
-            ctx.setGray(true);
+        }else {
+            // 随机选取小部分流量作为灰度流量
+            final String clientIp = ctx.getRequest().getClientIp();
+            final int mod = clientIp.hashCode() & (1024 - 1); // 等价于对1024取模
+            if(mod == 1) {
+                // 1024分之一的概率
+                ctx.setGray(true);
+            }
         }
     }
 }

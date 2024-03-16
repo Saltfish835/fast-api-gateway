@@ -45,14 +45,23 @@ public class SpringMVCClientRegisterManager extends AbstractClientRegisterManage
         super(apiProperties);
     }
 
+    /**
+     * 通过实现ApplicationContextAware接口，拿到IoC容器，用于后续使用
+     * @param applicationContext
+     * @throws BeansException
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
+    /**
+     * 通过实现ApplicationListener接口，监听容器的事件，做相应的操作
+     * @param applicationEvent
+     */
     @Override
     public void onApplicationEvent(ApplicationEvent applicationEvent) {
-        // Spring容器启动事件
+        // 当Spring容器启动时，就可以注册项目信息
         if(applicationEvent instanceof ApplicationStartedEvent) {
             try {
                 doRegisterSpringMVC();
@@ -64,8 +73,13 @@ public class SpringMVCClientRegisterManager extends AbstractClientRegisterManage
         }
     }
 
+
+    /**
+     * 向注册中心注册服务
+     */
     private void doRegisterSpringMVC() {
-        final Map<String, RequestMappingHandlerMapping> allRequestMappings = BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, RequestMappingHandlerMapping.class, true, false);
+        final Map<String, RequestMappingHandlerMapping> allRequestMappings = BeanFactoryUtils
+                .beansOfTypeIncludingAncestors(applicationContext, RequestMappingHandlerMapping.class, true, false);
         for(RequestMappingHandlerMapping handlerMapping : allRequestMappings.values()) {
             final Map<RequestMappingInfo, HandlerMethod> handlerMethods = handlerMapping.getHandlerMethods();
             for(Map.Entry<RequestMappingInfo, HandlerMethod> me: handlerMethods.entrySet()) {

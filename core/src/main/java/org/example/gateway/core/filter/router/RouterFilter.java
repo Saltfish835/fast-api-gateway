@@ -37,7 +37,6 @@ public class RouterFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
-
         final Optional<Rule.HystrixConfig> hystrixConfig = getHystrixConfig(ctx);
         if(hystrixConfig.isPresent()) {
             // 当前请求配置了熔断策略
@@ -70,7 +69,8 @@ public class RouterFilter implements Filter {
      * @param hystrixConfig
      * @return
      */
-    private CompletableFuture<Response> route(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig) {
+    private CompletableFuture<Response>
+    route(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig) {
         final Request request = ctx.getRequest().build();
         final CompletableFuture<Response> future = AsyncHttpHelper.getInstance().executeRequest(request);
         final boolean whenComplete = ConfigLoader.getConfig().isWhenComplete();

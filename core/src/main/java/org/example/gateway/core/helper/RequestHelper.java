@@ -11,6 +11,8 @@ import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ResponseException;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.request.GatewayRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
@@ -20,8 +22,10 @@ import java.util.List;
 
 public class RequestHelper {
 
-    public static GatewayContext doContext(FullHttpRequest request, ChannelHandlerContext ctx) {
+    private static final Logger logger = LoggerFactory.getLogger(GatewayContext.class);
 
+
+    public static GatewayContext doContext(FullHttpRequest request, ChannelHandlerContext ctx) {
         //	构建请求对象GatewayRequest
         GatewayRequest gateWayRequest = doRequest(request, ctx);
 
@@ -58,6 +62,9 @@ public class RequestHelper {
         HttpHeaders headers = fullHttpRequest.headers();
         //	从header头获取必须要传入的关键属性 uniqueId
         String uniqueId = headers.get(GatewayConst.UNIQUE_ID);
+        if(uniqueId == null) {
+            throw new RuntimeException("unique is null of uri: " + fullHttpRequest.uri());
+        }
         String host = headers.get(HttpHeaderNames.HOST);
         HttpMethod method = fullHttpRequest.method();
         String uri = fullHttpRequest.uri();

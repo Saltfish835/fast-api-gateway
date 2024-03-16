@@ -13,7 +13,7 @@ public interface FilterConst {
 
     String ROUTER_FILTER_ID = "router_filter";
     String ROUTER_FILTER_NAME = "router_filter";
-    int ROUTER_FILTER_ORDER = Integer.MAX_VALUE;
+    int ROUTER_FILTER_ORDER = Integer.MAX_VALUE - 1;
 
     String FLOW_CTL_FILTER_ID = "flow_ctl_filter";
     String FLOW_CTL_FILTER_NAME = "flow_ctl_filter";
@@ -34,7 +34,7 @@ public interface FilterConst {
 
     String GRAY_FILTER_ID = "gray_filter";
     String GRAY_FILTER_NAME = "gray_filter";
-    int GRAY_FILTER_ORDER = 0;
+    int GRAY_FILTER_ORDER = 1;
 
     // 最新执行
     String MONITOR_FILTER_ID = "monitor_filter";

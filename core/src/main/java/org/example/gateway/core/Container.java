@@ -50,7 +50,6 @@ public class Container implements LifeCycle{
         }else {
             this.nettyProcessor = nettyCoreProcessor;
         }
-        nettyProcessor = new NettyCoreProcessor();
         nettyHttpServer = new NettyHttpServer(config, nettyProcessor);
         nettyHttpClient = new NettyHttpClient(config, nettyHttpServer.getEventLoopGroupWorker());
     }

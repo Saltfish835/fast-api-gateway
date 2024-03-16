@@ -18,7 +18,7 @@ public class UserAuthFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(UserAuthFilter.class);
 
-    private static final String SECRET_KEY = "nihaoakongnijiwa";
+    private static final String SECRET_KEY = "dasgfawghehasghaertraewt";
 
     private static final String COOKIE_NAME = "user-jwt";
 

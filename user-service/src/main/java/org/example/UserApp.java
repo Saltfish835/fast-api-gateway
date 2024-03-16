@@ -1,18 +1,17 @@
-package org.example.gateway.http.server;
+package org.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * 模拟下游是http服务
+ * Hello world!
  *
  */
 @SpringBootApplication(scanBasePackages = "org.example")
-public class App 
+public class UserApp
 {
-
     public static void main( String[] args )
     {
-        SpringApplication.run(App.class, args);
+        SpringApplication.run(UserApp.class);
     }
 }

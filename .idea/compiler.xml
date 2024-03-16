@@ -6,18 +6,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="core" />
         <module name="register-center" />
-        <module name="common" />
         <module name="dubbo-server" />
         <module name="register-cneter-api" />
-        <module name="register-center-api" />
         <module name="register-center-nacos-impl" />
+        <module name="user-service" />
+        <module name="config-center" />
+        <module name="config-center-nacos-impl" />
+        <module name="core" />
+        <module name="common" />
+        <module name="register-center-api" />
         <module name="http-server" />
         <module name="client" />
         <module name="config-center-api" />
-        <module name="config-center" />
-        <module name="config-center-nacos-impl" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

@@ -4,7 +4,7 @@ import com.lmax.disruptor.*;
 
 public class Config {
 
-    private int port = 8888;
+    private int port = 10010;
 
     private int prometheusPort = 18000;
 
@@ -14,7 +14,7 @@ public class Config {
 
     private String env = "dev";
 
-    private int eventLoopGroupBossNum = 1;
+    private int eventLoopGroupBossNum = 2;
 
     private int eventLoopGroupWorkerNum = Runtime.getRuntime().availableProcessors();
 

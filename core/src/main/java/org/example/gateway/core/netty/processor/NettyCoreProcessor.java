@@ -64,6 +64,15 @@ public class NettyCoreProcessor implements NettyProcessor {
         }
     }
 
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void shutdown() {
+
+    }
 
 
     /**

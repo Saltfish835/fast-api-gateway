@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 
 import java.util.HashMap;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import static org.example.gateway.common.constants.BasicConst.COLON_SEPARATOR;
@@ -35,12 +36,11 @@ public class Bootstrap {
 
         // 连接配置中心，监听配置的新增、修改、删除
         ConfigCenter configCenter = null;
-//        final ServiceLoader<ConfigCenter> configCenterServiceLoader = ServiceLoader.load(ConfigCenter.class);
-//        for(ConfigCenter configCenterTmp : configCenterServiceLoader) {
-//            configCenter = configCenterTmp;
-//            break;
-//        }
-        configCenter = GatewayServiceLoader.load(ConfigCenter.class);
+        final ServiceLoader<ConfigCenter> configCenterServiceLoader = ServiceLoader.load(ConfigCenter.class);
+        for(ConfigCenter configCenterTmp : configCenterServiceLoader) {
+            configCenter = configCenterTmp;
+            break;
+        }
         if(configCenter == null) {
             logger.error("not found ConfigCenter impl");
             throw new RuntimeException("not found ConfigCenter impl");
@@ -72,12 +72,11 @@ public class Bootstrap {
 
     private static RegisterCenter registerAndSubscribe(Config config) {
         RegisterCenter registerCenter = null;
-//        final ServiceLoader<RegisterCenter> registerCenterServiceLoader = ServiceLoader.load(RegisterCenter.class);
-//        for(RegisterCenter registerCenterTmp : registerCenterServiceLoader) {
-//            registerCenter = registerCenterTmp;
-//            break;
-//        }
-        registerCenter = GatewayServiceLoader.load(RegisterCenter.class);
+        final ServiceLoader<RegisterCenter> registerCenterServiceLoader = ServiceLoader.load(RegisterCenter.class);
+        for(RegisterCenter registerCenterTmp : registerCenterServiceLoader) {
+            registerCenter = registerCenterTmp;
+            break;
+        }
         if(registerCenter == null) {
             logger.error("not found RegisterCenter impl");
             throw  new RuntimeException("not found RegisterCenter impl");

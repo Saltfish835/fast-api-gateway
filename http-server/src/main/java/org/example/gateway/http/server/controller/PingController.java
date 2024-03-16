@@ -23,8 +23,16 @@ public class PingController {
 
     @ApiInvoker(path = "/http-server/ping")
     @GetMapping("/http-server/ping")
-    public String ping() throws InterruptedException {
+    public String ping() {
         logger.info("{}", apiProperties);
-        return "pong false gray";
+        return "pong";
+    }
+
+
+    @ApiInvoker(path = "/http-server/mock")
+    @GetMapping("/http-server/mock")
+    public String mock() {
+        logger.info("{}", apiProperties);
+        return "mock";
     }
 }
