@@ -99,7 +99,7 @@ public class GatewayResponse {
     }
 
     /**
-     * 失败时的响应内容
+     * 构建失败响应对象
      * @param code
      * @param args
      * @return
@@ -112,11 +112,12 @@ public class GatewayResponse {
         final GatewayResponse res = new GatewayResponse();
         res.setHttpResponseStatus(code.getStatus());
         res.putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON + ";charset=utf-8");
+        res.setContent(JSONUtil.toJSONString(objectNode));
         return res;
     }
 
     /**
-     * 成功时的响应内容
+     * 构建其它类型下游服务成功响应对象
      * @param data
      * @return
      */

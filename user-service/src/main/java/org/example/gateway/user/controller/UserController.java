@@ -36,8 +36,13 @@ public class UserController {
     }
 
 
+    /**
+     * 扫描的时候得到映射关系 /user/private/getUserInfo --> /user/getUserInfo
+     * @param userId
+     * @return
+     */
     @ApiInvoker(path = "/private/getUserInfo")
-    @GetMapping("/private/getUserInfo")
+    @GetMapping("/getUserInfo")
     public UserInfo getUserInfo(@RequestParam("userId") String userId) {
         final UserInfo userInfo = new UserInfo(Long.parseLong(userId), "zhangsan", "13288888888");
         return userInfo;

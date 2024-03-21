@@ -12,6 +12,7 @@ import org.example.gateway.common.config.HttpServiceInvoker;
 import org.example.gateway.common.config.ServiceDefinition;
 import org.example.gateway.common.config.ServiceInvoker;
 import org.example.gateway.common.constants.BasicConst;
+import org.example.gateway.common.utils.JSONUtil;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -54,7 +55,8 @@ public class ApiAnnotationScanner {
         String version = apiServiceAnnotation.version();
         // 拿到ApiInvoker注解相关信息
         final ServiceDefinition serviceDefinition = new ServiceDefinition();
-        Map<String, ServiceInvoker> invokerMap = new HashMap<>();
+//        Map<String, ServiceInvoker> invokerMap = new HashMap<>();
+        Map<String, String> invokerMap = new HashMap<>();
         final Method[] methods = aClass.getMethods();
         if(methods != null && methods.length > 0) {
             for(Method method : methods) {
@@ -66,7 +68,7 @@ public class ApiAnnotationScanner {
                 switch (protocol) {
                     case HTTP:
                         final HttpServiceInvoker httpServiceInvoker = createHttpServiceInvoker(path);
-                        invokerMap.put(path, httpServiceInvoker);
+                        invokerMap.put(path, JSONUtil.toJSONString(httpServiceInvoker));
                         break;
                     case DUBBO:
                         ServiceBean<?> serviceBean = (ServiceBean<?>) args[0];
@@ -75,7 +77,7 @@ public class ApiAnnotationScanner {
                         if(!StringUtils.isBlank(dubboServiceInvokerVersion)) {
                             version = dubboServiceInvokerVersion;
                         }
-                        invokerMap.put(path, dubboServiceInvoker);
+                        invokerMap.put(path, JSONUtil.toJSONString(dubboServiceInvoker));
                         break;
                     default:
                         break;

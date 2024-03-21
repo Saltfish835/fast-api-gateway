@@ -1,19 +1,15 @@
-package org.example.gateway.core.filter.router;
+package org.example.gateway.core.filter.router.executor;
 
 import com.netflix.hystrix.*;
-import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
 import org.example.gateway.common.config.Rule;
-import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ConnectException;
 import org.example.gateway.common.exception.ResponseException;
-import org.example.gateway.core.ConfigLoader;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
-import org.example.gateway.core.filter.FilterAspect;
-import org.example.gateway.core.helper.AsyncHttpHelper;
+import org.example.gateway.core.filter.router.MyRouterFilter;
 import org.example.gateway.core.helper.ResponseHelper;
 import org.example.gateway.core.response.GatewayResponse;
 import org.slf4j.Logger;
@@ -25,19 +21,22 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
-/**
- * 路由过滤器
- */
-@FilterAspect(id= FilterConst.ROUTER_FILTER_ID, name=FilterConst.ROUTER_FILTER_NAME, order = FilterConst.ROUTER_FILTER_ORDER)
-public class RouterFilter implements Filter {
+public abstract class BaseExecutor implements IExecutor{
 
-    private static final Logger logger = LoggerFactory.getLogger(RouterFilter.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(BaseExecutor.class);
 
     private static final Logger accessLog = LoggerFactory.getLogger("accessLog");
 
+    private Filter filter;
+
+    protected BaseExecutor(Filter filter) {
+        this.filter = filter;
+    }
+
+
     @Override
-    public void doFilter(GatewayContext ctx) throws Exception {
-        final Optional<Rule.HystrixConfig> hystrixConfig = getHystrixConfig(ctx);
+    public void execute(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig) {
         if(hystrixConfig.isPresent()) {
             // 当前请求配置了熔断策略
             routeWithHystrix(ctx, hystrixConfig);
@@ -49,51 +48,11 @@ public class RouterFilter implements Filter {
 
 
     /**
-     * 获取当前请求的熔断配置
-     * @param gatewayContext
-     * @return
-     */
-    private static Optional<Rule.HystrixConfig> getHystrixConfig(GatewayContext gatewayContext) {
-        final Rule rule = gatewayContext.getRule();
-        final Optional<Rule.HystrixConfig> firstConfig = rule.getHystrixConfigs().stream().filter(hystrixConfig -> {
-            // 如果当前的请求路径有配置熔断规则
-            return StringUtils.equals(hystrixConfig.getPath(), gatewayContext.getRequest().getPath());
-        }).findFirst();
-        return firstConfig;
-    }
-
-
-    /**
-     * 当前请求未配置熔断器，走此方法进行转发
-     * @param ctx
-     * @param hystrixConfig
-     * @return
-     */
-    private CompletableFuture<Response> route(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig) {
-        final Request request = ctx.getRequest().build();
-        final CompletableFuture<Response> future = AsyncHttpHelper.getInstance().executeRequest(request);
-        final boolean whenComplete = ConfigLoader.getConfig().isWhenComplete();
-        if(whenComplete) {
-            // 调用下游服务
-            future.whenComplete(((response, throwable) -> {
-                complete(request, response, throwable, ctx, hystrixConfig);
-            }));
-        }else {
-            // 调用下游服务
-            future.whenCompleteAsync(((response, throwable) -> {
-                complete(request, response, throwable, ctx, hystrixConfig);
-            }));
-        }
-        return future;
-    }
-
-
-    /**
      * 当前请求配置了熔断，走此方法进行转发
      * @param gatewayContext
      * @param hystrixConfig
      */
-    private void routeWithHystrix(GatewayContext gatewayContext, Optional<Rule.HystrixConfig> hystrixConfig) {
+    protected void routeWithHystrix(GatewayContext gatewayContext, Optional<Rule.HystrixConfig> hystrixConfig) {
         final HystrixCommand.Setter setter = HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(gatewayContext.getUniqueId()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(gatewayContext.getRequest().getPath()))
                 .andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.Setter()
@@ -106,7 +65,10 @@ public class RouterFilter implements Filter {
         final HystrixCommand<Object> hystrixCommand = new HystrixCommand<Object>(setter) {
             @Override
             protected Object run() throws Exception {
-                route(gatewayContext, hystrixConfig).get();
+                final Object result = route(gatewayContext, hystrixConfig);
+                if(result instanceof CompletableFuture) {
+                    ((CompletableFuture<?>) result).get();
+                }
                 return null;
             }
 
@@ -122,6 +84,10 @@ public class RouterFilter implements Filter {
 
 
 
+    protected abstract Object route(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig);
+
+
+
     /**
      * 向客户端返回响应
      * @param request
@@ -129,7 +95,7 @@ public class RouterFilter implements Filter {
      * @param throwable
      * @param gatewayContext
      */
-    private void complete(Request request, Response response, Throwable throwable, GatewayContext gatewayContext, Optional<Rule.HystrixConfig> hystrixConfig) {
+    protected void complete(Request request, Object response, Throwable throwable, GatewayContext gatewayContext, Optional<Rule.HystrixConfig> hystrixConfig) {
         // 释放请求资源
         gatewayContext.releaseRequest();
         final int currentRetryTimes = gatewayContext.getCurrentRetryTimes();
@@ -151,8 +117,13 @@ public class RouterFilter implements Filter {
                     gatewayContext.setThrowable(new ConnectException(throwable, gatewayContext.getUniqueId(), url, ResponseCode.HTTP_RESPONSE_ERROR));
                 }
             }else {
-                // 使用AsyncHttp response对象构建网关response对象
-                gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(response));
+                if(response instanceof Response) {
+                    // 使用AsyncHttp response对象构建网关response对象
+                    gatewayContext.setResponse(GatewayResponse.buildGatewayResponse((Response) response));
+                }else {
+                    // 使用dubbo 构建网关response对象
+                    gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(response));
+                }
             }
         }catch (Throwable t) {
             // 捕获其它异常
@@ -184,7 +155,7 @@ public class RouterFilter implements Filter {
         logger.info("current retry times {}", currentRetryTimes);
         gatewayContext.setCurrentRetryTimes(currentRetryTimes+1);
         try {
-            doFilter(gatewayContext);
+            filter.doFilter(gatewayContext);
         } catch (Exception e) {
             e.printStackTrace();
         }

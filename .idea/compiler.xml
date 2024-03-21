@@ -7,13 +7,15 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="register-center" />
-        <module name="dubbo-server" />
         <module name="register-cneter-api" />
         <module name="register-center-nacos-impl" />
         <module name="user-service" />
+        <module name="dubbo-service" />
+        <module name="dubbo-interface" />
         <module name="config-center" />
         <module name="config-center-nacos-impl" />
         <module name="core" />
+        <module name="dubbo-web" />
         <module name="common" />
         <module name="register-center-api" />
         <module name="http-server" />

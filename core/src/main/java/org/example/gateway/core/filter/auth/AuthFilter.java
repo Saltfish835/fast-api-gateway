@@ -1,4 +1,4 @@
-package org.example.gateway.core.filter.user;
+package org.example.gateway.core.filter.auth;
 
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @FilterAspect(id = FilterConst.USER_AUTH_FILTER_ID, name = FilterConst.USER_AUTH_FILTER_NAME, order = FilterConst.USER_AUTH_FILTER_ORDER)
-public class UserAuthFilter implements Filter {
+public class AuthFilter implements Filter {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserAuthFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthFilter.class);
 
     private static final String SECRET_KEY = "dasgfawghehasghaertraewt";
 

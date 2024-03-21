@@ -28,30 +28,17 @@ public class RequestHelper {
     public static GatewayContext doContext(FullHttpRequest request, ChannelHandlerContext ctx) {
         //	构建请求对象GatewayRequest
         GatewayRequest gateWayRequest = doRequest(request, ctx);
-
         //	根据请求对象里的uniqueId，从注册中心获取资源服务信息(也就是服务定义信息)
         ServiceDefinition serviceDefinition = DynamicConfigManager.getInstance().getServiceDefinition(gateWayRequest.getUniqueId());
-
         //	根据请求对象获取服务定义对应的方法调用，然后获取对应的规则
         ServiceInvoker serviceInvoker = new HttpServiceInvoker();
         serviceInvoker.setInvokerPath(gateWayRequest.getPath());
         serviceInvoker.setTimeout(500);
-
         // 根据请求对象获取规则
         final Rule rule = getRule(gateWayRequest, serviceDefinition.getServiceId());
-
         //	构建我们GatewayContext对象
-        GatewayContext gatewayContext = new GatewayContext(
-                serviceDefinition.getProtocol(),
-                ctx,
-                HttpUtil.isKeepAlive(request),
-                gateWayRequest,
-                rule, 0);
-
-
-        //后续服务发现做完，这里都要改成动态的
-        //gatewayContext.getRequest().setModifyHost("127.0.0.1:8080"); // 在负载均衡算法中实现
-
+        GatewayContext gatewayContext = new GatewayContext(serviceDefinition.getProtocol(), ctx, HttpUtil.isKeepAlive(request),
+                gateWayRequest, rule, 0, serviceDefinition);
         return gatewayContext;
     }
 

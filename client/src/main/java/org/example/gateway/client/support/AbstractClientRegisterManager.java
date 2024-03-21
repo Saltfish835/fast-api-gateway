@@ -3,7 +3,6 @@ package org.example.gateway.client.support;
 import org.example.gateway.client.core.ApiProperties;
 import org.example.gateway.common.config.ServiceDefinition;
 import org.example.gateway.common.config.ServiceInstance;
-import org.example.gateway.common.loader.GatewayServiceLoader;
 import org.example.gateway.register.center.api.RegisterCenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

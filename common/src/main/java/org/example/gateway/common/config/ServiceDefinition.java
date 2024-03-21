@@ -53,7 +53,7 @@ public class ServiceDefinition implements Serializable {
     /**
      * 	服务列表信息：
      */
-    private Map<String /* invokerPath */, ServiceInvoker> invokerMap;
+    private Map<String /* invokerPath */, String> invokerMap;
 
 
     public ServiceDefinition() {
@@ -61,7 +61,7 @@ public class ServiceDefinition implements Serializable {
     }
 
     public ServiceDefinition(String uniqueId, String serviceId, String version, String protocol, String patternPath,
-                             String envType, boolean enable, Map<String, ServiceInvoker> invokerMap) {
+                             String envType, boolean enable, Map<String, String> invokerMap) {
         super();
         this.uniqueId = uniqueId;
         this.serviceId = serviceId;
@@ -142,11 +142,11 @@ public class ServiceDefinition implements Serializable {
         this.enable = enable;
     }
 
-    public Map<String, ServiceInvoker> getInvokerMap() {
+    public Map<String, String> getInvokerMap() {
         return invokerMap;
     }
 
-    public void setInvokerMap(Map<String, ServiceInvoker> invokerMap) {
+    public void setInvokerMap(Map<String, String> invokerMap) {
         this.invokerMap = invokerMap;
     }
 
@@ -162,7 +162,7 @@ public class ServiceDefinition implements Serializable {
         private String patternPath;
         private String envType;
         private boolean enable = true;
-        private Map<String /* invokerPath */, ServiceInvoker> invokerMap;
+        private Map<String /* invokerPath */, String> invokerMap;
 
         public Builder() {
         }
@@ -202,7 +202,7 @@ public class ServiceDefinition implements Serializable {
             return this;
         }
 
-        public Builder setInvokerMap(Map<String, ServiceInvoker> invokerMap) {
+        public Builder setInvokerMap(Map<String, String> invokerMap) {
             this.invokerMap = invokerMap;
             return this;
         }

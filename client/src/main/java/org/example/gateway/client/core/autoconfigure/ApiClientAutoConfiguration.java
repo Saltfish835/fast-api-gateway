@@ -34,10 +34,10 @@ public class ApiClientAutoConfiguration {
         return new SpringMVCClientRegisterManager(apiProperties);
     }
 
-//    @Bean
-//    @ConditionalOnClass({ServiceBean.class})
-//    @ConditionalOnMissingBean(Dubbo27ClientRegisterManager.class)
-//    public Dubbo27ClientRegisterManager dubbo27ClientRegisterManager() {
-//        return new Dubbo27ClientRegisterManager(apiProperties);
-//    }
+    @Bean
+    @ConditionalOnClass({ServiceBean.class})
+    @ConditionalOnMissingBean(Dubbo27ClientRegisterManager.class)
+    public Dubbo27ClientRegisterManager dubbo27ClientRegisterManager() {
+        return new Dubbo27ClientRegisterManager(apiProperties);
+    }
 }

@@ -15,6 +15,10 @@ public interface FilterConst {
     String ROUTER_FILTER_NAME = "router_filter";
     int ROUTER_FILTER_ORDER = Integer.MAX_VALUE - 1;
 
+    String ROUTE_PROTOCOL_HTTP = "http";
+    String ROUTE_PROTOCOL_DUBBO = "dubbo";
+    String ROUTE_PROTOCOL_GRPC = "grpc";
+
     String FLOW_CTL_FILTER_ID = "flow_ctl_filter";
     String FLOW_CTL_FILTER_NAME = "flow_ctl_filter";
     int FLOW_CTL_FILTER_ORDER = 50;

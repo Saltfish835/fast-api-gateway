@@ -18,6 +18,8 @@ public enum ResponseCode {
     FILTER_CONFIG_PARSE_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR,10006, "过滤器配置解析异常"),
 
     REQUEST_TIMEOUT(HttpResponseStatus.GATEWAY_TIMEOUT, 10007, "连接下游服务超时"),
+    PROTOCOL_PARSE_ERROR_IS_EMPTY(HttpResponseStatus.BAD_REQUEST, 10009, "下游服务协议不存在"),
+    PROTOCOL_NO_MATCHED(HttpResponseStatus.NOT_FOUND,10008, "没有找到对应的下游服务协议类型"),
 
     HTTP_RESPONSE_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 10030, "服务返回异常"),
 

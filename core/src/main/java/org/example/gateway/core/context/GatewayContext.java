@@ -4,6 +4,8 @@ import io.micrometer.core.instrument.Timer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ReferenceCountUtil;
 import org.example.gateway.common.config.Rule;
+import org.example.gateway.common.config.ServiceDefinition;
+import org.example.gateway.common.config.ServiceInstance;
 import org.example.gateway.common.utils.AssertUtil;
 import org.example.gateway.core.request.GatewayRequest;
 import org.example.gateway.core.response.GatewayResponse;
@@ -25,12 +27,17 @@ public class GatewayContext extends BaseContext{
 
     private Timer.Sample timerSample;
 
+    private ServiceDefinition serviceDefinition;
+
+    private ServiceInstance serviceInstance;
+
     public GatewayContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive, GatewayRequest request,
-                          Rule rule, int currentRetryTimes) {
+                          Rule rule, int currentRetryTimes, ServiceDefinition serviceDefinition) {
         super(protocol, nettyCtx, keepAlive);
         this.request = request;
         this.rule = rule;
         this.currentRetryTimes = currentRetryTimes;
+        this.serviceDefinition = serviceDefinition;
     }
 
     /**
@@ -42,6 +49,7 @@ public class GatewayContext extends BaseContext{
         private GatewayRequest request;
         private Rule rule;
         private boolean keepAlive;
+        private ServiceDefinition serviceDefinition;
 
         public Builder() {
         }
@@ -76,7 +84,8 @@ public class GatewayContext extends BaseContext{
             AssertUtil.notNull(nettyCtx, "nettyCtx不能为空");
             AssertUtil.notNull(request, "request不能为空");
             AssertUtil.notNull(rule, "rule不能为空");
-            return new GatewayContext(protocol,nettyCtx,keepAlive, request,rule, 0);
+            AssertUtil.notNull(serviceDefinition, "serviceDefinition不能为空");
+            return new GatewayContext(protocol, nettyCtx, keepAlive, request, rule, 0, serviceDefinition);
         }
     }
 
@@ -185,5 +194,21 @@ public class GatewayContext extends BaseContext{
 
     public void setTimerSample(Timer.Sample timerSample) {
         this.timerSample = timerSample;
+    }
+
+    public ServiceDefinition getServiceDefinition() {
+        return serviceDefinition;
+    }
+
+    public void setServiceDefinition(ServiceDefinition serviceDefinition) {
+        this.serviceDefinition = serviceDefinition;
+    }
+
+    public ServiceInstance getServiceInstance() {
+        return serviceInstance;
+    }
+
+    public void setServiceInstance(ServiceInstance serviceInstance) {
+        this.serviceInstance = serviceInstance;
     }
 }

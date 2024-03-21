@@ -17,6 +17,7 @@ import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.example.gateway.common.config.ServiceDefinition;
 import org.example.gateway.common.config.ServiceInstance;
 import org.example.gateway.common.constants.GatewayConst;
+import org.example.gateway.common.utils.JSONUtil;
 import org.example.gateway.register.center.api.RegisterCenter;
 import org.example.gateway.register.center.api.RegisterCenterListener;
 import org.slf4j.Logger;
@@ -66,13 +67,13 @@ public class NacosRegisterCenter implements RegisterCenter {
             nacosInstance.setIp(serviceInstance.getIp());
             nacosInstance.setPort(serviceInstance.getPort());
             Map<String, String> metadata = new HashMap<>();
-            metadata.put(GatewayConst.META_DATA_KEY, JSON.toJSONString(serviceInstance));
+            metadata.put(GatewayConst.META_DATA_KEY, JSONUtil.toJSONString(serviceInstance));
             nacosInstance.setMetadata(metadata);
             // 注册
             namingService.registerInstance(serviceDefinition.getServiceId(), env, nacosInstance);
             // 更新服务定义
             Map<String, String> tmpMap = new HashMap<>();
-            tmpMap.put(GatewayConst.META_DATA_KEY, JSON.toJSONString(serviceDefinition));
+            tmpMap.put(GatewayConst.META_DATA_KEY, JSONUtil.toJSONString(serviceDefinition));
             namingMaintainService.updateService(serviceDefinition.getServiceId(), env, 0, tmpMap);
             logger.info("register {} {}", serviceDefinition, serviceInstance);
         }catch (NacosException e) {

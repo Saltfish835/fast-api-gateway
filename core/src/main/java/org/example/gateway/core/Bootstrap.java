@@ -6,7 +6,6 @@ import org.example.gateway.common.config.ServiceDefinition;
 import org.example.gateway.common.config.ServiceInstance;
 import org.example.gateway.common.utils.NetUtils;
 import org.example.gateway.common.utils.TimeUtil;
-import org.example.gateway.common.loader.GatewayServiceLoader;
 import org.example.gateway.config.center.api.ConfigCenter;
 import org.example.gateway.register.center.api.RegisterCenter;
 import org.example.gateway.register.center.api.RegisterCenterListener;

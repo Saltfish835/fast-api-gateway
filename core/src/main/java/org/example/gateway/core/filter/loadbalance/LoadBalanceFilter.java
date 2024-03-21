@@ -32,8 +32,7 @@ public class LoadBalanceFilter implements Filter {
         final ServiceInstance serviceInstance = loadBalanceRule.choose(serviceId, ctx.isGray());
         final GatewayRequest request = ctx.getRequest();
         if(serviceInstance != null && request != null) {
-            String host = serviceInstance.getIp() + ":" + serviceInstance.getPort();
-            request.setModifyHost(host);
+            ctx.setServiceInstance(serviceInstance);
         }else {
             logger.warn("No instance available for : {}", serviceId);
             throw new NotFoundException(ResponseCode.SERVICE_INSTANCE_NOT_FOUND);
