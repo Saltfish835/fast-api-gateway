@@ -41,8 +41,7 @@ public class UserController {
      * @param userId
      * @return
      */
-    @ApiInvoker(path = "/private/getUserInfo")
-    @GetMapping("/getUserInfo")
+    @GetMapping("/private/getUserInfo")
     public UserInfo getUserInfo(@RequestParam("userId") String userId) {
         final UserInfo userInfo = new UserInfo(Long.parseLong(userId), "zhangsan", "13288888888");
         return userInfo;

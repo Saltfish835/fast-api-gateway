@@ -75,6 +75,7 @@ public class Dubbo27ClientRegisterManager extends AbstractClientRegisterManager 
         serviceInstance.setVersion(version);
         serviceInstance.setWeight(DEFAULT_WEIGHT);
         register(serviceDefinition, serviceInstance);
+        set.add(beanRef);
     }
 
 }

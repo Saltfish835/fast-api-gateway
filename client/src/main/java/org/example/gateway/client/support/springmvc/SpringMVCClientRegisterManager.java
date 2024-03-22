@@ -116,6 +116,7 @@ public class SpringMVCClientRegisterManager extends AbstractClientRegisterManage
                 }
                 // 注册
                 register(serviceDefinition, serviceInstance);
+                set.add(bean);
             }
         }
     }
