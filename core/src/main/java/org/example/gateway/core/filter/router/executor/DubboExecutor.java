@@ -1,6 +1,5 @@
 package org.example.gateway.core.filter.router.executor;
 
-import org.asynchttpclient.Request;
 import org.example.gateway.common.config.*;
 import org.example.gateway.common.utils.JSONUtil;
 import org.example.gateway.core.context.GatewayContext;
@@ -9,6 +8,7 @@ import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.rpc.service.GenericService;
+import org.example.gateway.core.request.GatewayRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class DubboExecutor extends BaseExecutor{
      */
     @Override
     protected Object route(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig) {
-        final Request request = ctx.getRequest().build();
+        final GatewayRequest gatewayRequest = ctx.getRequest();
         Object result = null;
         Throwable throwable = null;
         try {
@@ -52,7 +52,7 @@ public class DubboExecutor extends BaseExecutor{
             final ServiceInstance serviceInstance = ctx.getServiceInstance();
             final ServiceDefinition serviceDefinition = ctx.getServiceDefinition();
             final Map<String, String> invokerMap = serviceDefinition.getInvokerMap();
-            final DubboServiceInvoker serviceInvoker = JSONUtil.parse(invokerMap.get(ctx.getRequest().getUri()), DubboServiceInvoker.class);
+            final DubboServiceInvoker serviceInvoker = JSONUtil.parse(invokerMap.get(ctx.getRequest().getPath()), DubboServiceInvoker.class);
             // 设置dubbo泛化调用信息
             final ApplicationConfig applicationConfig = new ApplicationConfig();
             applicationConfig.setName(serviceDefinition.getServiceId());
@@ -68,12 +68,13 @@ public class DubboExecutor extends BaseExecutor{
             referenceConfig.setUrl(url);
             final GenericService genericService = referenceConfig.get();
             // TODO 解析参数
-            result = genericService.$invoke(serviceInvoker.getMethodName(), serviceInvoker.getParameterTypes(), new Object[]{"hehe"});
+            final Map<String, Object> params = gatewayRequest.getRequestParams();
+            result = genericService.$invoke(serviceInvoker.getMethodName(), serviceInvoker.getParameterTypes(), params.values().toArray());
         }catch (Throwable t) {
             logger.error("execute dubbo service error", t);
             throwable = t;
         }
-        complete(request, result, throwable, ctx, hystrixConfig);
+        complete(gatewayRequest.build(), result, throwable, ctx, hystrixConfig);
         return null;
     }
 

@@ -46,6 +46,7 @@ public class Bootstrap {
         }
         configCenter.init(config.getRegistryAddress(), config.getEnv());
         configCenter.subscribeRulesChange(rules -> {
+            // 更新配置中心的规则保留到本地
             DynamicConfigManager.getInstance().putAllRule(rules);
         });
 
@@ -53,7 +54,7 @@ public class Bootstrap {
         final Container container = new Container(config);
         container.start();
 
-        // 连接注册中心，将注册中心的实例加载到本地
+        // 连接注册中心，将网关服务注册到注册中心，并订阅其它下游服务
         RegisterCenter registerCenter = registerAndSubscribe(config);
 
         // 服务优雅关闭

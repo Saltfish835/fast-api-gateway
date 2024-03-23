@@ -1,17 +1,23 @@
 package org.example.gateway.core.request;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jayway.jsonpath.JsonPath;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.multipart.Attribute;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
 import org.example.gateway.common.constants.BasicConst;
+import org.example.gateway.common.utils.JSONUtil;
 import org.example.gateway.common.utils.TimeUtil;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class GatewayRequest implements IGatewayRequest{
@@ -119,19 +125,18 @@ public class GatewayRequest implements IGatewayRequest{
 
 
     /**
+     * 请求参数
+     */
+    private Map<String, Object> requestParams;
+
+
+    /**
      * 构建下游http请求的构建器
      */
     private final RequestBuilder requestBuilder;
 
-    public GatewayRequest(String uniqueId,
-                          Charset charset,
-                          String clientIp,
-                          String host,
-                          String uri,
-                          HttpMethod httpMethod,
-                          String contentType,
-                          HttpHeaders httpHeaders,
-                          FullHttpRequest fullHttpRequest) {
+    public GatewayRequest(String uniqueId, Charset charset, String clientIp, String host, String uri,
+                          HttpMethod httpMethod, String contentType, HttpHeaders httpHeaders, FullHttpRequest fullHttpRequest) {
         this.uniqueId = uniqueId;
         this.beginTime = TimeUtil.currentTimeMillis();
         this.charset = charset;
@@ -157,6 +162,7 @@ public class GatewayRequest implements IGatewayRequest{
         if(Objects.nonNull(contentBuffer)) {
             this.requestBuilder.setBody(contentBuffer.nioBuffer());
         }
+        this.requestParams = parse();
     }
 
     public String getUniqueId() {
@@ -272,7 +278,7 @@ public class GatewayRequest implements IGatewayRequest{
      */
     public boolean isFormPost() {
         return HttpMethod.POST.equals(httpMethod) && (
-                contentType.startsWith(HttpHeaderValues.FORM_DATA.toString()) ||
+                contentType.endsWith(HttpHeaderValues.FORM_DATA.toString()) ||
                 contentType.startsWith(HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString()));
     }
 
@@ -290,9 +296,6 @@ public class GatewayRequest implements IGatewayRequest{
         return cookieMap;
     }
 
-    public Map<String, List<String>> getPostParameters() {
-        return postParameters;
-    }
 
     public String getModifyScheme() {
         return modifyScheme;
@@ -372,5 +375,55 @@ public class GatewayRequest implements IGatewayRequest{
         requestBuilder.setUrl(getFinalUrl());
         requestBuilder.setHeader("userId", String.valueOf(userId));
         return requestBuilder.build();
+    }
+
+
+    /**
+     * 解析请求中的参数
+     * @return
+     */
+    public Map<String, Object> parse() {
+        if(httpMethod == HttpMethod.GET) {
+            final HashMap<String, Object> parameter = new HashMap<>();
+            queryStringDecoder.parameters().forEach((k,v)-> {
+                parameter.put(k,v.get(0));
+            });
+            return parameter;
+        }else if(httpMethod == HttpMethod.POST) {
+            // 获取 Content-type
+            String contentType = getContentType();
+            switch (contentType) {
+                case "multipart/form-data":
+                    Map<String, Object> parameterMap = new HashMap<>();
+                    HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(fullHttpRequest);
+//                    decoder.offer(fullHttpRequest);
+                    decoder.getBodyHttpDatas().forEach(data -> {
+                        Attribute attr = (Attribute) data;
+                        try {
+                            parameterMap.put(data.getName(), attr.getValue());
+                        } catch (IOException ignore) {
+                        }
+                    });
+                    return parameterMap;
+                case "application/json":
+                    ByteBuf byteBuf = fullHttpRequest.content().copy();
+                    if (byteBuf.isReadable()) {
+                        String content = byteBuf.toString(StandardCharsets.UTF_8);
+                        return JSON.parseObject(content);
+                    }
+                    break;
+                case "none":
+                    return new HashMap<>();
+                default:
+                    throw new RuntimeException("未实现的协议类型 Content-Type：" + contentType);
+            }
+        }else {
+            throw new RuntimeException("未实现的请求类型 HttpMethod: "+httpMethod);
+        }
+        throw new RuntimeException("未实现的请求类型 HttpMethod：" + httpMethod);
+    }
+
+    public Map<String, Object> getRequestParams() {
+        return requestParams;
     }
 }

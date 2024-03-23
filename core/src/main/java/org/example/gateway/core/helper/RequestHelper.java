@@ -22,7 +22,7 @@ import java.util.List;
 
 public class RequestHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(GatewayContext.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestHelper.class);
 
 
     public static GatewayContext doContext(FullHttpRequest request, ChannelHandlerContext ctx) {
@@ -30,10 +30,6 @@ public class RequestHelper {
         GatewayRequest gateWayRequest = doRequest(request, ctx);
         //	根据请求对象里的uniqueId，从注册中心获取资源服务信息(也就是服务定义信息)
         ServiceDefinition serviceDefinition = DynamicConfigManager.getInstance().getServiceDefinition(gateWayRequest.getUniqueId());
-        //	根据请求对象获取服务定义对应的方法调用，然后获取对应的规则
-        ServiceInvoker serviceInvoker = new HttpServiceInvoker();
-        serviceInvoker.setInvokerPath(gateWayRequest.getPath());
-        serviceInvoker.setTimeout(500);
         // 根据请求对象获取规则
         final Rule rule = getRule(gateWayRequest, serviceDefinition.getServiceId());
         //	构建我们GatewayContext对象

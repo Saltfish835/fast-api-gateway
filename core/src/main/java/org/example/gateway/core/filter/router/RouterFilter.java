@@ -33,7 +33,7 @@ public class RouterFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(RouterFilter.class);
 
-    private static final Logger accessLog = LoggerFactory.getLogger("accessLog");
+//    private static final Logger accessLog = LoggerFactory.getLogger("accessLog");
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
@@ -163,14 +163,14 @@ public class RouterFilter implements Filter {
             gatewayContext.written(); // 记录请求阶段
             ResponseHelper.writeResponse(gatewayContext); // 响应
             // 记录访问日志
-            accessLog.info("{} {} {} {} {} {} {}",
-                    System.currentTimeMillis() - gatewayContext.getRequest().getBeginTime(),
-                    gatewayContext.getRequest().getClientIp(),
-                    gatewayContext.getRequest().getUniqueId(),
-                    gatewayContext.getRequest().getHttpMethod(),
-                    gatewayContext.getRequest().getPath(),
-                    gatewayContext.getResponse().getHttpResponseStatus().code(),
-                    gatewayContext.getResponse().getFutureResponse().getResponseBodyAsBytes().length);
+//            accessLog.info("{} {} {} {} {} {} {}",
+//                    System.currentTimeMillis() - gatewayContext.getRequest().getBeginTime(),
+//                    gatewayContext.getRequest().getClientIp(),
+//                    gatewayContext.getRequest().getUniqueId(),
+//                    gatewayContext.getRequest().getHttpMethod(),
+//                    gatewayContext.getRequest().getPath(),
+//                    gatewayContext.getResponse().getHttpResponseStatus().code(),
+//                    gatewayContext.getResponse().getFutureResponse().getResponseBodyAsBytes().length);
         }
     }
 

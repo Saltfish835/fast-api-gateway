@@ -40,6 +40,12 @@ public class NacosConfigCenter implements ConfigCenter {
         }
     }
 
+
+    /**
+     * 把规则从配置中心拉取下来保存到本地
+     * 当配置中心的规则发生变化，同步更新到本地
+     * @param listener
+     */
     @Override
     public void subscribeRulesChange(RulesChangeListener listener) {
         try {

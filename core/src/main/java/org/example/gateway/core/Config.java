@@ -57,7 +57,7 @@ public class Config {
 
     private String bufferType = "parallel";
 
-    private int bufferSize = 1024 * 16;
+    private int bufferSize = 1024 * 64;
 
     private int processThread = Runtime.getRuntime().availableProcessors();
 

@@ -31,7 +31,7 @@ public class DubboServiceImpl implements DubboService {
      */
     @ApiInvoker(path = "/dubbo-server/testDubbo2")
     @Override
-    public String testDubbo2(String msg) {
-        return "pong dubbo 2" + msg;
+    public String testDubbo2(String msg, String msg2) {
+        return "pong dubbo " + msg + " and " + msg2;
     }
 }

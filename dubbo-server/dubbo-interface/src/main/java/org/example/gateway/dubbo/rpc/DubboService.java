@@ -4,5 +4,5 @@ public interface DubboService {
 
     String testDubbo(String msg);
 
-    String testDubbo2(String msg);
+    String testDubbo2(String msg, String msg2);
 }
