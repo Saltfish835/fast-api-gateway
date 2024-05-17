@@ -5,28 +5,18 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.util.ReferenceCountUtil;
-import org.asynchttpclient.Request;
-import org.asynchttpclient.Response;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.BaseException;
-import org.example.gateway.common.exception.ConnectException;
-import org.example.gateway.common.exception.ResponseException;
-import org.example.gateway.core.ConfigLoader;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.context.HttpRequestWrapper;
 import org.example.gateway.core.filter.FilterFactory;
 import org.example.gateway.core.filter.GatewayFilterChain;
 import org.example.gateway.core.filter.GatewayFilterChainFactory;
-import org.example.gateway.core.helper.AsyncHttpHelper;
 import org.example.gateway.core.helper.RequestHelper;
 import org.example.gateway.core.helper.ResponseHelper;
-import org.example.gateway.core.response.GatewayResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeoutException;
 
 /**
  * 处理客户端请求

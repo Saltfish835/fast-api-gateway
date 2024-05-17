@@ -29,10 +29,10 @@ public class PingController {
     }
 
 
-    @ApiInvoker(path = "/http-server/mock")
-    @GetMapping("/http-server/mock")
-    public String mock() {
+    @ApiInvoker(path = "/http-server/sayHi")
+    @GetMapping("/http-server/sayHi")
+    public String mock(String name) {
         logger.info("{}", apiProperties);
-        return "mock";
+        return "hello "+name;
     }
 }

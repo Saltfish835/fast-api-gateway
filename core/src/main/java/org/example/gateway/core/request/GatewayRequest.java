@@ -23,7 +23,6 @@ import java.util.*;
 public class GatewayRequest implements IGatewayRequest{
 
 
-    private final String uniqueId;
 
     /**
      * 请求进入网关的开始时间
@@ -135,9 +134,8 @@ public class GatewayRequest implements IGatewayRequest{
      */
     private final RequestBuilder requestBuilder;
 
-    public GatewayRequest(String uniqueId, Charset charset, String clientIp, String host, String uri,
+    public GatewayRequest(Charset charset, String clientIp, String host, String uri,
                           HttpMethod httpMethod, String contentType, HttpHeaders httpHeaders, FullHttpRequest fullHttpRequest) {
-        this.uniqueId = uniqueId;
         this.beginTime = TimeUtil.currentTimeMillis();
         this.charset = charset;
         this.clientIp = clientIp;
@@ -165,9 +163,6 @@ public class GatewayRequest implements IGatewayRequest{
         this.requestParams = parse();
     }
 
-    public String getUniqueId() {
-        return uniqueId;
-    }
 
     public long getBeginTime() {
         return beginTime;

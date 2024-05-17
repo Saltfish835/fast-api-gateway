@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class DubboExecutor extends BaseExecutor{
 
@@ -39,11 +38,10 @@ public class DubboExecutor extends BaseExecutor{
     /**
      * 调用下游的dubbo服务
      * @param ctx
-     * @param hystrixConfig
      * @return
      */
     @Override
-    protected Object route(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig) {
+    protected void route(GatewayContext ctx) {
         final GatewayRequest gatewayRequest = ctx.getRequest();
         Object result = null;
         Throwable throwable = null;
@@ -61,7 +59,7 @@ public class DubboExecutor extends BaseExecutor{
             applicationConfig.setRegistry(registryConfig);
             applicationConfig.setQosEnable(false);
             final ReferenceConfig<GenericService> referenceConfig = new ReferenceConfig<>();
-            referenceConfig.setGeneric(true);
+            referenceConfig.setGeneric(true); // 泛化调用
             referenceConfig.setApplication(applicationConfig);
             referenceConfig.setInterface(serviceInvoker.getInterfaceClass());
             String url = serviceDefinition.getProtocol() + "://"+serviceInstance.getIp()+":"+serviceInstance.getPort()+"/"+serviceInvoker.getInterfaceClass();
@@ -74,8 +72,7 @@ public class DubboExecutor extends BaseExecutor{
             logger.error("execute dubbo service error", t);
             throwable = t;
         }
-        complete(gatewayRequest.build(), result, throwable, ctx, hystrixConfig);
-        return null;
+        complete(gatewayRequest.build(), result, throwable, ctx);
     }
 
 }

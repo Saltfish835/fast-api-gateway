@@ -6,3 +6,5 @@ org.example.gateway.core.filter.gray.GrayFilter
 org.example.gateway.core.filter.monitor.MonitorFilter
 org.example.gateway.core.filter.monitor.MonitorEndFilter
 org.example.gateway.core.filter.mock.MockFilter
+org.example.gateway.core.filter.stripPrefix.StripPrefixFilter
+org.example.gateway.core.filter.prefixPath.PrefixPathFilter

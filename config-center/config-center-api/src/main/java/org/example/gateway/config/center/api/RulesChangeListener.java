@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface RulesChangeListener {
 
-    void onRulesChange(List<Rule> rules);
+    void onRulesChange(String rulesStr);
 }

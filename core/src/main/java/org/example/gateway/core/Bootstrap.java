@@ -7,6 +7,7 @@ import org.example.gateway.common.config.ServiceInstance;
 import org.example.gateway.common.utils.NetUtils;
 import org.example.gateway.common.utils.TimeUtil;
 import org.example.gateway.config.center.api.ConfigCenter;
+import org.example.gateway.core.helper.RuleHelper;
 import org.example.gateway.register.center.api.RegisterCenter;
 import org.example.gateway.register.center.api.RegisterCenterListener;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 
 import java.util.HashMap;
-import java.util.ServiceLoader;
+
 import java.util.Set;
 
 import static org.example.gateway.common.constants.BasicConst.COLON_SEPARATOR;
@@ -29,40 +30,27 @@ public class Bootstrap {
     public static void main(String[] args) {
 
         // 加载网关配置
-        final Config config = ConfigLoader.getInstance().load(args);
+        Config config = ConfigLoader.getInstance().load(args);
 
         // 插件初始化
-
-        // 连接配置中心，监听配置的新增、修改、删除
-        ConfigCenter configCenter = null;
-        final ServiceLoader<ConfigCenter> configCenterServiceLoader = ServiceLoader.load(ConfigCenter.class);
-        for(ConfigCenter configCenterTmp : configCenterServiceLoader) {
-            configCenter = configCenterTmp;
-            break;
-        }
-        if(configCenter == null) {
-            logger.error("not found ConfigCenter impl");
-            throw new RuntimeException("not found ConfigCenter impl");
-        }
-        configCenter.init(config.getRegistryAddress(), config.getEnv());
-        configCenter.subscribeRulesChange(rules -> {
-            // 更新配置中心的规则保留到本地
-            DynamicConfigManager.getInstance().putAllRule(rules);
-        });
+        PluginLoader.getInstance().load(config);
 
         // 启动容器
         final Container container = new Container(config);
         container.start();
 
-        // 连接注册中心，将网关服务注册到注册中心，并订阅其它下游服务
-        RegisterCenter registerCenter = registerAndSubscribe(config);
+        // 连接配置中心，拉取配置并保留到本地，订阅配置变更
+        pullAndSubscribe(config);
+
+        // 连接注册中心，将网关服务注册到注册中心，拉取服务并保留到本地，订阅服务变更
+        registerAndSubscribe(config);
 
         // 服务优雅关闭
         Runtime.getRuntime().addShutdownHook(new Thread() {
             // 接收到kill信号后进行处理
             @Override
             public void run() {
-                registerCenter.deregister(buildGatewayServiceDefinition(config), buildGatewayServiceInstance(config));
+                config.getRegisterCenter().deregister(buildGatewayServiceDefinition(config), buildGatewayServiceInstance(config));
                 container.shutdown();
             }
         });
@@ -70,32 +58,39 @@ public class Bootstrap {
     }
 
 
-    private static RegisterCenter registerAndSubscribe(Config config) {
-        RegisterCenter registerCenter = null;
-        final ServiceLoader<RegisterCenter> registerCenterServiceLoader = ServiceLoader.load(RegisterCenter.class);
-        for(RegisterCenter registerCenterTmp : registerCenterServiceLoader) {
-            registerCenter = registerCenterTmp;
-            break;
-        }
-        if(registerCenter == null) {
-            logger.error("not found RegisterCenter impl");
-            throw  new RuntimeException("not found RegisterCenter impl");
-        }
+    private static void pullAndSubscribe(Config config) {
+        // 初始化配置中心客户端
+        ConfigCenter configCenter = config.getConfigCenter();
+        configCenter.init(ConfigLoader.getConfig().getRegistryAddress(), ConfigLoader.getConfig().getEnv());
+        // 从配置中心拉取配置
+        configCenter.subscribeRulesChange(configJsonStr -> {
+            // 将从配置中心拉取到的json字符串类型的配置转换成rule对象，并保留到本地
+            DynamicConfigManager.getInstance().putAllRule(RuleHelper.parseRule(configJsonStr));
+        });
+    }
+
+
+    private static void registerAndSubscribe(Config config) {
+        // 加载注册中心插件
+        RegisterCenter registerCenter = config.getRegisterCenter();
+        // 初始化注册中心客户端
         registerCenter.init(config.getRegistryAddress(), config.getEnv());
         final ServiceDefinition serviceDefinition = buildGatewayServiceDefinition(config);
         final ServiceInstance serviceInstance = buildGatewayServiceInstance(config);
+        // 向注册中心注册网关服务
         registerCenter.register(serviceDefinition, serviceInstance);
+        // 从注册中心拉取服务
         registerCenter.subscribeAllServices(new RegisterCenterListener() {
             @Override
             public void onChange(ServiceDefinition serviceDefinition, Set<ServiceInstance> serviceInstanceSet) {
                 logger.info("refresh service and instance: {} {}", serviceDefinition.getUniqueId(),
                         JSON.toJSON(serviceInstanceSet));
                 final DynamicConfigManager dynamicConfigManager = DynamicConfigManager.getInstance();
+                // 将注册中心的服务保存到本地
                 dynamicConfigManager.addServiceInstance(serviceDefinition.getUniqueId(), serviceInstanceSet);
                 dynamicConfigManager.putServiceDefinition(serviceDefinition.getUniqueId(), serviceDefinition);
             }
         });
-        return registerCenter;
     }
 
 

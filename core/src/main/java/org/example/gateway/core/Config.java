@@ -1,6 +1,12 @@
 package org.example.gateway.core;
 
 import com.lmax.disruptor.*;
+import org.example.gateway.config.center.api.ConfigCenter;
+import org.example.gateway.core.filter.Filter;
+import org.example.gateway.register.center.api.RegisterCenter;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Config {
 
@@ -62,6 +68,24 @@ public class Config {
     private int processThread = Runtime.getRuntime().availableProcessors();
 
     private String waitStrategy = "blocking";
+
+    /**
+     * 配置中心插件
+     */
+    private ConfigCenter configCenter;
+
+    /**
+     * 注册中心插件
+     */
+    private RegisterCenter registerCenter;
+
+    /**
+     * 过滤器插件
+     */
+    private ConcurrentHashMap<String, Filter> filterMap;
+
+    // TODO predicateMap
+
 
     public WaitStrategy getWaitStrategy() {
         switch (waitStrategy) {
@@ -220,5 +244,29 @@ public class Config {
 
     public void setProcessThread(int processThread) {
         this.processThread = processThread;
+    }
+
+    public ConfigCenter getConfigCenter() {
+        return configCenter;
+    }
+
+    public void setConfigCenter(ConfigCenter configCenter) {
+        this.configCenter = configCenter;
+    }
+
+    public RegisterCenter getRegisterCenter() {
+        return registerCenter;
+    }
+
+    public void setRegisterCenter(RegisterCenter registerCenter) {
+        this.registerCenter = registerCenter;
+    }
+
+    public ConcurrentHashMap<String, Filter> getFilterMap() {
+        return filterMap;
+    }
+
+    public void setFilterMap(ConcurrentHashMap<String, Filter> filterMap) {
+        this.filterMap = filterMap;
     }
 }

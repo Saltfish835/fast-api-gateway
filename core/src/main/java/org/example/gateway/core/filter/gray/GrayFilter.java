@@ -13,7 +13,7 @@ public class GrayFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
-        // 测试用：请求头中带有gray，认定其为灰度流量
+        // 测试用：请求头中带有gray，则直接认定其为灰度流量
         final String gray = ctx.getRequest().getHttpHeaders().get("gray");
         if("true".equalsIgnoreCase(gray)) {
             // 后续会转发给灰度服务

@@ -1,14 +1,9 @@
 package org.example.gateway.core.filter.router;
 
 import org.apache.commons.lang3.StringUtils;
-import org.asynchttpclient.Request;
-import org.asynchttpclient.Response;
-import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
-import org.example.gateway.common.exception.ConnectException;
 import org.example.gateway.common.exception.NotFoundException;
-import org.example.gateway.common.exception.ResponseException;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
 import org.example.gateway.core.filter.FilterAspect;
@@ -19,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.util.Optional;
 
 @FilterAspect(id= FilterConst.ROUTER_FILTER_ID, name=FilterConst.ROUTER_FILTER_NAME, order = FilterConst.ROUTER_FILTER_ORDER)
 public class MyRouterFilter implements Filter {
@@ -28,9 +22,14 @@ public class MyRouterFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        // 拿到执行器
         final IExecutor executor = getExecutor(ctx);
-        final Optional<Rule.HystrixConfig> hystrixConfig = getHystrixConfig(ctx);
-        executor.execute(ctx, hystrixConfig);
+        if(executor == null) {
+            logger.error("executor not found, uri is {}", ctx.getOriginRequest().getUri());
+            throw new RuntimeException("executor not found");
+        }
+        // 向下游服务发送请求
+        executor.execute(ctx);
     }
 
 
@@ -53,23 +52,9 @@ public class MyRouterFilter implements Filter {
                 executor = DubboExecutor.getInstance(this);
                 break;
             default:
-                throw new NotFoundException(ResponseCode.PROTOCOL_NO_MATCHED);
+                executor = null;
         }
         return executor;
     }
 
-
-    /**
-     * 获取当前请求的熔断配置
-     * @param gatewayContext
-     * @return
-     */
-    private static Optional<Rule.HystrixConfig> getHystrixConfig(GatewayContext gatewayContext) {
-        final Rule rule = gatewayContext.getRule();
-        final Optional<Rule.HystrixConfig> firstConfig = rule.getHystrixConfigs().stream().filter(hystrixConfig -> {
-            // 如果当前的请求路径有配置熔断规则
-            return StringUtils.equals(hystrixConfig.getPath(), gatewayContext.getRequest().getPath());
-        }).findFirst();
-        return firstConfig;
-    }
 }

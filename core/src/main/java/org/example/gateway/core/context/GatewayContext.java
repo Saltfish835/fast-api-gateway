@@ -6,6 +6,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.config.ServiceDefinition;
 import org.example.gateway.common.config.ServiceInstance;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.utils.AssertUtil;
 import org.example.gateway.core.request.GatewayRequest;
 import org.example.gateway.core.response.GatewayResponse;
@@ -21,9 +22,11 @@ public class GatewayContext extends BaseContext{
 
     public Rule rule;
 
-    private int currentRetryTimes;
+    private int currentRetryTimes = 0;
 
     private boolean gray;
+
+    private boolean hystrix;
 
     private Timer.Sample timerSample;
 
@@ -32,11 +35,10 @@ public class GatewayContext extends BaseContext{
     private ServiceInstance serviceInstance;
 
     public GatewayContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive, GatewayRequest request,
-                          Rule rule, int currentRetryTimes, ServiceDefinition serviceDefinition) {
+                          Rule rule, ServiceDefinition serviceDefinition) {
         super(protocol, nettyCtx, keepAlive);
         this.request = request;
         this.rule = rule;
-        this.currentRetryTimes = currentRetryTimes;
         this.serviceDefinition = serviceDefinition;
     }
 
@@ -85,7 +87,7 @@ public class GatewayContext extends BaseContext{
             AssertUtil.notNull(request, "request不能为空");
             AssertUtil.notNull(rule, "rule不能为空");
             AssertUtil.notNull(serviceDefinition, "serviceDefinition不能为空");
-            return new GatewayContext(protocol, nettyCtx, keepAlive, request, rule, 0, serviceDefinition);
+            return new GatewayContext(protocol, nettyCtx, keepAlive, request, rule, serviceDefinition);
         }
     }
 
@@ -117,7 +119,7 @@ public class GatewayContext extends BaseContext{
      * @param filterId
      * @return
      */
-    public Rule.FilterConfig getFilterConfig(String filterId) {
+    public FilterConfig getFilterConfig(String filterId) {
         return rule.getFilterConfig(filterId);
     }
 
@@ -126,7 +128,7 @@ public class GatewayContext extends BaseContext{
      * @return
      */
     public String getUniqueId() {
-        return request.getUniqueId();
+        return rule.getUniqueId();
     }
 
     /**
@@ -210,5 +212,13 @@ public class GatewayContext extends BaseContext{
 
     public void setServiceInstance(ServiceInstance serviceInstance) {
         this.serviceInstance = serviceInstance;
+    }
+
+    public boolean isHystrix() {
+        return hystrix;
+    }
+
+    public void setHystrix(boolean hystrix) {
+        this.hystrix = hystrix;
     }
 }

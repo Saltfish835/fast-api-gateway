@@ -2,7 +2,6 @@ package org.example.gateway.core.filter.flowCtl;
 
 import com.google.common.util.concurrent.RateLimiter;
 import org.apache.commons.lang3.StringUtils;
-import org.example.gateway.common.config.Rule;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -28,9 +27,9 @@ public class GuavaCountLimiter {
         this.rateLimiter = RateLimiter.create(maxPermits, warmUpPeriodAsSecond, TimeUnit.SECONDS);
     }
 
-    public static GuavaCountLimiter getInstance(String serviceId, Rule.FlowCtlConfig flowCtlConfig) {
+    public static GuavaCountLimiter getInstance(String serviceId, FlowCtlFilterConfig flowCtlConfig) {
         if(StringUtils.isEmpty(serviceId) || flowCtlConfig == null || StringUtils.isEmpty(flowCtlConfig.getValue()) ||
-                StringUtils.isEmpty(flowCtlConfig.getType()) || StringUtils.isEmpty(flowCtlConfig.getConfig())) {
+                StringUtils.isEmpty(flowCtlConfig.getType()) || flowCtlConfig.getConfig() == null) {
             return null;
         }
         final String key = new StringBuffer().append(serviceId).append(".").append(flowCtlConfig.getValue()).toString();

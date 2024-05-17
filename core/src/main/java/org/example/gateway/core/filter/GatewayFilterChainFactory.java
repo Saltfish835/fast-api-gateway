@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.commons.lang3.StringUtils;
 import org.example.gateway.common.config.Rule;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
 import org.slf4j.Logger;
@@ -17,9 +18,15 @@ public class GatewayFilterChainFactory implements FilterFactory{
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayFilterChainFactory.class);
 
-    private Map<String, Filter> processorFilterIdMap = new ConcurrentHashMap<>();
+    /**
+     * 缓存系统当前实现的所有filter
+     */
+    private static final Map<String, Filter> processorFilterIdMap = new ConcurrentHashMap<>();
 
-    private Cache<String,GatewayFilterChain> chainCache = Caffeine.newBuilder().recordStats()
+    /**
+     * 缓存路由规则对应的过滤器链
+     */
+    private static Cache<String,GatewayFilterChain> chainCache = Caffeine.newBuilder().recordStats()
             .expireAfterWrite(10, TimeUnit.MINUTES).build(); // 缓存的过期时间10min
 
     private static class SingletonInstance {
@@ -32,7 +39,7 @@ public class GatewayFilterChainFactory implements FilterFactory{
 
 
     /**
-     * 加载所有配置的filter
+     * 网关启动时加载所有配置在META-INF/services目录下的filter
      */
     public GatewayFilterChainFactory() {
         final ServiceLoader<Filter> filterServiceLoader = ServiceLoader.load(Filter.class);
@@ -41,9 +48,8 @@ public class GatewayFilterChainFactory implements FilterFactory{
             logger.info("load filter success:{},{},{},{}",filter.getClass(), annotation.id(),annotation.name(),annotation.order());
             if(annotation != null) {
                 String filterId = annotation.id();
-                if(StringUtils.isEmpty(filterId)) {
-                    filterId = filter.getClass().getName();
-                }
+                // 如果id为空，则使用类名作为key
+                filterId = StringUtils.isEmpty(filterId) ? filter.getClass().getName() : filterId;
                 processorFilterIdMap.put(filterId, filter);
             }
         }
@@ -69,11 +75,11 @@ public class GatewayFilterChainFactory implements FilterFactory{
     private GatewayFilterChain doBuildFilterChain(Rule rule) {
         final GatewayFilterChain gatewayFilterChain = new GatewayFilterChain();
         final ArrayList<Filter> filters = new ArrayList<>();
-        // 添加监控过滤器
+        // 监控过滤器默认添加
         filters.add(getFilterInfo(FilterConst.MONITOR_FILTER_ID));
         filters.add(getFilterInfo(FilterConst.MONITOR_END_FILTER_ID));
         if(rule != null) {
-            for(Rule.FilterConfig filterConfig : rule.getFilterConfigs()) {
+            for(FilterConfig filterConfig : rule.getFilterConfigs()) {
                 if(filterConfig == null) {
                     continue;
                 }
@@ -84,9 +90,9 @@ public class GatewayFilterChainFactory implements FilterFactory{
                 }
             }
         }
-        // 添加路由过滤器
+        // 路由过滤器默认添加
         filters.add(getFilterInfo(FilterConst.ROUTER_FILTER_ID));
-        filters.sort(Comparator.comparingInt(Filter::getOrder));
+        filters.sort(Comparator.comparingInt(Filter::getOrder)); // 给所有过滤器排个序，使过滤器有序执行
         gatewayFilterChain.addFilterList(filters);
         return gatewayFilterChain;
     }

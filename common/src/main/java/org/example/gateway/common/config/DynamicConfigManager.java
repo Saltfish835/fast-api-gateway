@@ -40,7 +40,7 @@ public class DynamicConfigManager {
     }
 
     public void putServiceDefinition(String uniqueId, ServiceDefinition serviceDefinition) {
-        serviceDefinitionMap.put(uniqueId, serviceDefinition);;
+        serviceDefinitionMap.put(uniqueId, serviceDefinition);
     }
 
     public ServiceDefinition getServiceDefinition(String uniqueId) {
@@ -119,27 +119,10 @@ public class DynamicConfigManager {
 
     public void putAllRule(List<Rule> ruleList) {
         ConcurrentHashMap<String, Rule> newRuleMap = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, Rule> newPathMap = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, List<Rule>> newServiceMap = new ConcurrentHashMap<>();
         for(Rule rule : ruleList) {
             newRuleMap.put(rule.getId(), rule);
-            // 建立service--rule的映射关系
-            List<Rule> rules = newServiceMap.get(rule.getServiceId());
-            if(rules == null) {
-                rules = new ArrayList<>();
-            }
-            rules.add(rule);
-            newServiceMap.put(rule.getServiceId(), rules);
-            // 建立path--rule的映射关系
-            final List<String> paths = rule.getPaths();
-            for(String path : paths) {
-                String key = rule.getServiceId() + "." + path;
-                newPathMap.put(key, rule);
-            }
         }
         ruleMap  = newRuleMap;
-        pathRuleMap = newPathMap;
-        serviceRuleMap = newServiceMap;
     }
 
     public Rule getRule(String ruleId) {

@@ -3,13 +3,12 @@ package org.example.gateway.core.filter.router.executor;
 import com.netflix.hystrix.*;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
-import org.example.gateway.common.config.Rule;
+import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ConnectException;
 import org.example.gateway.common.exception.ResponseException;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
-import org.example.gateway.core.filter.router.MyRouterFilter;
 import org.example.gateway.core.helper.ResponseHelper;
 import org.example.gateway.core.response.GatewayResponse;
 import org.slf4j.Logger;
@@ -17,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
 public abstract class BaseExecutor implements IExecutor{
@@ -36,13 +33,17 @@ public abstract class BaseExecutor implements IExecutor{
 
 
     @Override
-    public void execute(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig) {
-        if(hystrixConfig.isPresent()) {
+    public void execute(GatewayContext ctx) {
+        // 获取熔断器配置
+        HystrixFilterConfig hystrixConfig = (HystrixFilterConfig)ctx.getRule().getFilterConfig(FilterConst.HYSTRIX_ID);
+        if(hystrixConfig != null) {
             // 当前请求配置了熔断策略
+            ctx.setHystrix(true);
             routeWithHystrix(ctx, hystrixConfig);
         }else {
             // 当前请求没有配置熔断策略
-            route(ctx, hystrixConfig);
+            ctx.setHystrix(false);
+            route(ctx);
         }
     }
 
@@ -52,57 +53,60 @@ public abstract class BaseExecutor implements IExecutor{
      * @param gatewayContext
      * @param hystrixConfig
      */
-    protected void routeWithHystrix(GatewayContext gatewayContext, Optional<Rule.HystrixConfig> hystrixConfig) {
+    protected void routeWithHystrix(GatewayContext gatewayContext, HystrixFilterConfig hystrixConfig) {
         final HystrixCommand.Setter setter = HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(gatewayContext.getUniqueId()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(gatewayContext.getRequest().getPath()))
                 .andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.Setter()
-                        .withCoreSize(hystrixConfig.get().getThreadCoreSize()))
+                        .withCoreSize(hystrixConfig.getThreadCoreSize()))
                 .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
                         .withExecutionIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
-                        .withExecutionTimeoutInMilliseconds(hystrixConfig.get().getTimeoutInMilliseconds())
+                        .withExecutionTimeoutInMilliseconds(hystrixConfig.getTimeoutInMilliseconds())
                         .withExecutionIsolationThreadInterruptOnTimeout(true)
                         .withExecutionTimeoutEnabled(true));
         final HystrixCommand<Object> hystrixCommand = new HystrixCommand<Object>(setter) {
             @Override
             protected Object run() throws Exception {
-                final Object result = route(gatewayContext, hystrixConfig);
-                if(result instanceof CompletableFuture) {
-                    ((CompletableFuture<?>) result).get();
-                }
+                // 实际执行路由
+                route(gatewayContext);
                 return null;
             }
 
             @Override
             protected Object getFallback() {
-                gatewayContext.setResponse(hystrixConfig);
+                // 当熔断发生时，执行降级逻辑
+                gatewayContext.setResponse(hystrixConfig.getFallbackResponse());
                 gatewayContext.written();
                 return null;
             }
         };
+        // 执行熔断降级
         hystrixCommand.execute();
     }
 
 
-
-    protected abstract Object route(GatewayContext ctx, Optional<Rule.HystrixConfig> hystrixConfig);
+    /**
+     * 调用下游服务
+     * @param ctx
+     */
+    protected abstract void route(GatewayContext ctx);
 
 
 
     /**
-     * 向客户端返回响应
+     * 处理下游服务的响应
      * @param request
      * @param response
      * @param throwable
      * @param gatewayContext
      */
-    protected void complete(Request request, Object response, Throwable throwable, GatewayContext gatewayContext, Optional<Rule.HystrixConfig> hystrixConfig) {
+    protected void complete(Request request, Object response, Throwable throwable, GatewayContext gatewayContext) {
         // 释放请求资源
         gatewayContext.releaseRequest();
         final int currentRetryTimes = gatewayContext.getCurrentRetryTimes();
-        final int confRetryTimes = gatewayContext.getRule().getRetryConfig().getTimes();
-        // 当前请求超时或者出现IO异常 且 没有超过最大重试次数 且 没有熔断 才进行重试
+        final int confRetryTimes = gatewayContext.getRule().getRetry();
+        // 当前请求超时或者出现IO异常 且 没有超过最大重试次数 且 没有配置熔断 才进行重试
         if((throwable instanceof TimeoutException || throwable instanceof IOException)
-                && currentRetryTimes <= confRetryTimes && !hystrixConfig.isPresent()) {
+                && currentRetryTimes <= confRetryTimes && gatewayContext.isHystrix() == false) {
             doRetry(gatewayContext, currentRetryTimes);
             return;
         }
@@ -137,7 +141,7 @@ public abstract class BaseExecutor implements IExecutor{
             accessLog.info("{} {} {} {} {} {} {}",
                     System.currentTimeMillis() - gatewayContext.getRequest().getBeginTime(),
                     gatewayContext.getRequest().getClientIp(),
-                    gatewayContext.getRequest().getUniqueId(),
+                    gatewayContext.getUniqueId(),
                     gatewayContext.getRequest().getHttpMethod(),
                     gatewayContext.getRequest().getPath(),
                     gatewayContext.getResponse().getHttpResponseStatus().code(),
