@@ -6,22 +6,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
+import org.example.gateway.core.ConfigLoader;
 import org.example.gateway.core.context.GatewayContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class GatewayFilterChainFactory implements FilterFactory{
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayFilterChainFactory.class);
-
-    /**
-     * 缓存系统当前实现的所有filter
-     */
-    private static final Map<String, Filter> processorFilterIdMap = new ConcurrentHashMap<>();
 
     /**
      * 缓存路由规则对应的过滤器链
@@ -37,23 +32,6 @@ public class GatewayFilterChainFactory implements FilterFactory{
         return SingletonInstance.INSTANCE;
     }
 
-
-    /**
-     * 网关启动时加载所有配置在META-INF/services目录下的filter
-     */
-    public GatewayFilterChainFactory() {
-        final ServiceLoader<Filter> filterServiceLoader = ServiceLoader.load(Filter.class);
-        for(Filter filter : filterServiceLoader) {
-            final FilterAspect annotation = filter.getClass().getAnnotation(FilterAspect.class);
-            logger.info("load filter success:{},{},{},{}",filter.getClass(), annotation.id(),annotation.name(),annotation.order());
-            if(annotation != null) {
-                String filterId = annotation.id();
-                // 如果id为空，则使用类名作为key
-                filterId = StringUtils.isEmpty(filterId) ? filter.getClass().getName() : filterId;
-                processorFilterIdMap.put(filterId, filter);
-            }
-        }
-    }
 
 
 
@@ -100,6 +78,6 @@ public class GatewayFilterChainFactory implements FilterFactory{
 
     @Override
     public Filter getFilterInfo(String filterId){
-        return processorFilterIdMap.get(filterId);
+        return ConfigLoader.getConfig().getFilterMap().get(filterId);
     }
 }

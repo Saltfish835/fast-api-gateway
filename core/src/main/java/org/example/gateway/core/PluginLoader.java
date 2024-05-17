@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.example.gateway.config.center.api.ConfigCenter;
 import org.example.gateway.core.filter.Filter;
 import org.example.gateway.core.filter.FilterAspect;
+import org.example.gateway.core.predicates.Predicate;
+import org.example.gateway.core.predicates.PredicateAspect;
 import org.example.gateway.register.center.api.RegisterCenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +31,16 @@ public class PluginLoader {
      * @param config
      */
     public void load(Config config) {
+        // 加载并保存配置中心插件
         config.setConfigCenter(loadConfigCenter());
+        // 加载并保存注册中心插件
         config.setRegisterCenter(loadRegisterCenter());
+        // 加载并保存所有过滤器
         config.setFilterMap(loadFilter());
-        // TODO 加载所有predicate
-
+        // 加载并保存所有predicate
+        config.setPredicateMap(loadPredicate());
     }
+
 
     /**
      * 加载配置中心插件
@@ -45,6 +51,7 @@ public class PluginLoader {
         final ServiceLoader<ConfigCenter> configCenterServiceLoader = ServiceLoader.load(ConfigCenter.class);
         for(ConfigCenter configCenterTmp : configCenterServiceLoader) {
             configCenter = configCenterTmp;
+            logger.info("load configCenter success:{}",configCenter.getClass());
             break;
         }
         if(configCenter == null) {
@@ -53,6 +60,7 @@ public class PluginLoader {
         }
         return configCenter;
     }
+
 
     /**
      * 加载注册中心插件
@@ -63,6 +71,7 @@ public class PluginLoader {
         final ServiceLoader<RegisterCenter> registerCenterServiceLoader = ServiceLoader.load(RegisterCenter.class);
         for(RegisterCenter registerCenterTmp : registerCenterServiceLoader) {
             registerCenter = registerCenterTmp;
+            logger.info("load registerCenter success:{}",registerCenter.getClass());
             break;
         }
         if(registerCenter == null) {
@@ -94,5 +103,20 @@ public class PluginLoader {
     }
 
 
-
+    /**
+     * 加载predicate
+     * @return
+     */
+    private ConcurrentHashMap<String, Predicate> loadPredicate() {
+        ConcurrentHashMap predicateMap = new ConcurrentHashMap();
+        final ServiceLoader<Predicate> predicateServiceLoader = ServiceLoader.load(Predicate.class);
+        for(Predicate predicate : predicateServiceLoader) {
+            final PredicateAspect annotation = predicate.getClass().getAnnotation(PredicateAspect.class);
+            logger.info("load predicate success:{},{},{}",predicate.getClass(), annotation.id(), annotation.name());
+            if (annotation != null) {
+                predicateMap.put(annotation.id(), predicate);
+            }
+        }
+        return predicateMap;
+    }
 }

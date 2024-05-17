@@ -19,4 +19,6 @@ public interface RuleConst {
     String FILTER_CONFIGS = "filterConfigs";
 
     String PREDICATE_ID = "id";
+
+    String FILTER_ID = "id";
 }

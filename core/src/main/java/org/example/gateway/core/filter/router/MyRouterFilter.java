@@ -1,6 +1,8 @@
 package org.example.gateway.core.filter.router;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.NotFoundException;
@@ -30,6 +32,11 @@ public class MyRouterFilter implements Filter {
         }
         // 向下游服务发送请求
         executor.execute(ctx);
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        return null;
     }
 
 

@@ -1,6 +1,8 @@
 package org.example.gateway.core.filter.flowCtl;
 
 
+import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
@@ -39,5 +41,17 @@ public class FlowCtlFilter implements Filter {
             flowCtlRule.doFlowCtlFilter(flowCtlConfig, ctx.getRule().getServiceId());
         }
 
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        final FlowCtlFilterConfig flowCtlConfig = new FlowCtlFilterConfig();
+        flowCtlConfig.setId(filterConfigJsonObj.getString("id"));
+        flowCtlConfig.setType(filterConfigJsonObj.getString("type"));
+        flowCtlConfig.setValue(filterConfigJsonObj.getString("value"));
+        flowCtlConfig.setModel(filterConfigJsonObj.getString("model"));
+        final JSONObject innerConf = filterConfigJsonObj.getJSONObject("config");
+        flowCtlConfig.setConfig(new FlowCtlFilterConfig.Config(innerConf.getInteger("duration"), innerConf.getInteger("permits")));
+        return flowCtlConfig;
     }
 }

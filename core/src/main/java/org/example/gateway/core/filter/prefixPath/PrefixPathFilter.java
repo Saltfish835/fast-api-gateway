@@ -1,6 +1,8 @@
 package org.example.gateway.core.filter.prefixPath;
 
 
+import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
@@ -25,5 +27,13 @@ public class PrefixPathFilter implements Filter {
         String modifyPath = ctx.getRequest().getModifyPath();
         ctx.getRequest().setModifyPath(prefix + modifyPath);
         logger.debug("prefix is {}, modify path is {}",prefix, prefix + modifyPath);
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        final PrefixPathFilterConfig prefixPathConfig = new PrefixPathFilterConfig();
+        prefixPathConfig.setId(filterConfigJsonObj.getString("id"));
+        prefixPathConfig.setValue(filterConfigJsonObj.getString("value"));
+        return prefixPathConfig;
     }
 }

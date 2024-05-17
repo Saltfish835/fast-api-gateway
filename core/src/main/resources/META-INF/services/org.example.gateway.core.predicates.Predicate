@@ -1,0 +1,2 @@
+org.example.gateway.core.predicates.method.MethodPredicate
+org.example.gateway.core.predicates.path.PathPredicate

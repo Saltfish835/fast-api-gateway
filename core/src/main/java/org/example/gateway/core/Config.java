@@ -3,9 +3,9 @@ package org.example.gateway.core;
 import com.lmax.disruptor.*;
 import org.example.gateway.config.center.api.ConfigCenter;
 import org.example.gateway.core.filter.Filter;
+import org.example.gateway.core.predicates.Predicate;
 import org.example.gateway.register.center.api.RegisterCenter;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Config {
@@ -84,7 +84,10 @@ public class Config {
      */
     private ConcurrentHashMap<String, Filter> filterMap;
 
-    // TODO predicateMap
+    /**
+     * predicate插件
+     */
+    private ConcurrentHashMap<String, Predicate> predicateMap;
 
 
     public WaitStrategy getWaitStrategy() {
@@ -268,5 +271,13 @@ public class Config {
 
     public void setFilterMap(ConcurrentHashMap<String, Filter> filterMap) {
         this.filterMap = filterMap;
+    }
+
+    public ConcurrentHashMap<String, Predicate> getPredicateMap() {
+        return predicateMap;
+    }
+
+    public void setPredicateMap(ConcurrentHashMap<String, Predicate> predicateMap) {
+        this.predicateMap = predicateMap;
     }
 }

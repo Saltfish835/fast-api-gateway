@@ -1,5 +1,7 @@
 package org.example.gateway.core.filter.loadbalance;
 
+import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.config.ServiceInstance;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
@@ -33,6 +35,14 @@ public class LoadBalanceFilter implements Filter {
             logger.warn("No instance available for : {}", uniqueId);
             throw new NotFoundException(ResponseCode.SERVICE_INSTANCE_NOT_FOUND);
         }
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        final LoadBalanceFilterConfig loadBalanceConfig = new LoadBalanceFilterConfig();
+        loadBalanceConfig.setId(filterConfigJsonObj.getString("id"));
+        loadBalanceConfig.setValue(filterConfigJsonObj.getString("value"));
+        return loadBalanceConfig;
     }
 
 

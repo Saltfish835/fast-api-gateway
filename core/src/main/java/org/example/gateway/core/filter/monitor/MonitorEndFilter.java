@@ -1,9 +1,11 @@
 package org.example.gateway.core.filter.monitor;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sun.net.httpserver.HttpServer;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.ConfigLoader;
 import org.example.gateway.core.context.GatewayContext;
@@ -60,5 +62,10 @@ public class MonitorEndFilter implements Filter {
         final Timer timer = prometheusMeterRegistry.timer("gateway_request", "uniqueId", ctx.getUniqueId(),
                 "protocol", ctx.getProtocol(), "path", ctx.getRequest().getPath());
         ctx.getTimerSample().stop(timer);
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        return null;
     }
 }

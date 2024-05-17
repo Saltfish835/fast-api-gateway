@@ -32,7 +32,7 @@ public class Bootstrap {
         // 加载网关配置
         Config config = ConfigLoader.getInstance().load(args);
 
-        // 插件初始化
+        // 插件初始化，保存在config对象中
         PluginLoader.getInstance().load(config);
 
         // 启动容器
@@ -58,10 +58,14 @@ public class Bootstrap {
     }
 
 
+    /**
+     * 连接配置中心，拉取配置并保留到本地，订阅配置变更
+     * @param config
+     */
     private static void pullAndSubscribe(Config config) {
         // 初始化配置中心客户端
         ConfigCenter configCenter = config.getConfigCenter();
-        configCenter.init(ConfigLoader.getConfig().getRegistryAddress(), ConfigLoader.getConfig().getEnv());
+        configCenter.init(config.getRegistryAddress(), config.getEnv());
         // 从配置中心拉取配置
         configCenter.subscribeRulesChange(configJsonStr -> {
             // 将从配置中心拉取到的json字符串类型的配置转换成rule对象，并保留到本地
@@ -70,6 +74,10 @@ public class Bootstrap {
     }
 
 
+    /**
+     * 连接注册中心，将网关服务注册到注册中心，拉取服务并保留到本地，订阅服务变更
+     * @param config
+     */
     private static void registerAndSubscribe(Config config) {
         // 加载注册中心插件
         RegisterCenter registerCenter = config.getRegisterCenter();

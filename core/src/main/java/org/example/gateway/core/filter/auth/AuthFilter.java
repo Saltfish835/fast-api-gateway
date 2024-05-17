@@ -1,9 +1,11 @@
 package org.example.gateway.core.filter.auth;
 
+import com.alibaba.fastjson.JSONObject;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.DefaultClaims;
 import org.apache.commons.lang3.StringUtils;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ResponseException;
@@ -42,6 +44,11 @@ public class AuthFilter implements Filter {
             // 解析token异常说明token不合法
             throw new ResponseException(ResponseCode.UNAUTHORIZED);
         }
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        return null;
     }
 
     /**

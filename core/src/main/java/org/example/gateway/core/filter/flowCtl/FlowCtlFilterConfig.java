@@ -27,6 +27,8 @@ public class FlowCtlFilterConfig extends FilterConfig {
      */
     private Config config;
 
+    public FlowCtlFilterConfig() {
+    }
 
     public FlowCtlFilterConfig(String type, String value, String model, Config config) {
         this.type = type;

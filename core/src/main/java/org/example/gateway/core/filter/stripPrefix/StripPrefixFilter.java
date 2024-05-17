@@ -1,6 +1,7 @@
 package org.example.gateway.core.filter.stripPrefix;
 
-import org.example.gateway.common.config.Rule;
+import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.BasicConst;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
@@ -20,12 +21,10 @@ public class StripPrefixFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
-        // 拿到当前请求对应的规则
-        Rule rule = ctx.getRule();
-        if(rule == null) {
+        StripPrefixFilterConfig stripPrefixConfig = (StripPrefixFilterConfig)ctx.getRule().getFilterConfig(FilterConst.STRIP_PREFIX_FILTER_ID);
+        if(stripPrefixConfig == null) {
             return;
         }
-        StripPrefixFilterConfig stripPrefixConfig = (StripPrefixFilterConfig)rule.getFilterConfig(FilterConst.STRIP_PREFIX_FILTER_ID);
         // 要去掉几层前缀
         Integer value = stripPrefixConfig.getValue();
         String modifyPath = ctx.getRequest().getModifyPath();
@@ -35,5 +34,13 @@ public class StripPrefixFilter implements Filter {
             newModifyPath.append(BasicConst.PATH_SEPARATOR + items[i]);
         }
         ctx.getRequest().setModifyPath(newModifyPath.toString());
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        final StripPrefixFilterConfig stripPrefixConfig = new StripPrefixFilterConfig();
+        stripPrefixConfig.setId(filterConfigJsonObj.getString("id"));
+        stripPrefixConfig.setValue(filterConfigJsonObj.getIntValue("value"));
+        return stripPrefixConfig;
     }
 }

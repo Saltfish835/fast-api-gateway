@@ -1,5 +1,7 @@
 package org.example.gateway.core.filter.gray;
 
+import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
@@ -27,5 +29,10 @@ public class GrayFilter implements Filter {
                 ctx.setGray(true);
             }
         }
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        return null;
     }
 }

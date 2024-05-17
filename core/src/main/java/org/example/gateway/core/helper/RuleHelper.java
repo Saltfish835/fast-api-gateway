@@ -3,17 +3,30 @@ package org.example.gateway.core.helper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.DynamicConfigManager;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.config.PredicateConfig;
 import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.constants.RuleConst;
+import org.example.gateway.core.request.GatewayRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RuleHelper {
 
+    private static final Logger logger = LoggerFactory.getLogger(RuleHelper.class);
+
+    /**
+     * 解析配置
+     * @param configJsonStr
+     * @return
+     */
     public static List<Rule> parseRule(String configJsonStr) {
         List<Rule> rules = new ArrayList<>();
         JSONArray ruleJsonArr = JSON.parseObject(configJsonStr).getJSONArray(RuleConst.RULES);
@@ -29,15 +42,70 @@ public class RuleHelper {
             // 解析predicate配置
             Set<PredicateConfig> predicateConfigs = new HashSet<>();
             JSONArray predicateConfigJsonArr = ruleJsonObj.getJSONArray(RuleConst.PREDICATE_CONFIGS);
-            for(int j=0;j<predicateConfigJsonArr.size();j++) {
+            for(int j=0; j<predicateConfigJsonArr.size(); j++) {
                 JSONObject predicateConfJsonObj = predicateConfigJsonArr.getJSONObject(j);
                 String predicateId = predicateConfJsonObj.getString(RuleConst.PREDICATE_ID);
-                Class predicateConfType = PredicateHelper.getPredicateConfType(predicateId);
-                predicateConfigs.add(PredicateHelper.getPredicateConf(predicateConfJsonObj,predicateConfType));
+                // TODO 将jsonObj转换成对应类型的对象
+                final PredicateConfig predicateConfig = PredicateHelper.getPredicateConfig(predicateId, predicateConfJsonObj);
+                if(predicateConfig == null) {
+                    throw new RuntimeException("parse predicateConfJsonObj error");
+                }
+                predicateConfigs.add(predicateConfig);
             }
-
-
+            rule.setPredicateConfigs(predicateConfigs);
+            // 解析filter配置
+            Set<FilterConfig> filterConfigs = new HashSet<>();
+            final JSONArray filterConfigJsonArr = ruleJsonObj.getJSONArray(RuleConst.FILTER_CONFIGS);
+            for(int j=0; j<filterConfigJsonArr.size(); j++) {
+                final JSONObject filterConfigJsonObj = filterConfigJsonArr.getJSONObject(j);
+                final String filterId = filterConfigJsonObj.getString(RuleConst.FILTER_ID);
+                // TODO 将jsonObj转换成对应类型的对象
+                final FilterConfig filterConfig = FilterHelper.getFilterConfig(filterId, filterConfigJsonObj);
+                if(filterConfig == null) {
+                    throw new RuntimeException("parse filterConfigJsonObj error");
+                }
+                filterConfigs.add(filterConfig);
+            }
+            rule.setFilterConfigs(filterConfigs);
+            rules.add(rule);
         }
         return rules;
+    }
+
+
+    /**
+     * 获取此请求对应的规则
+     * @param gatewayRequest
+     * @return
+     */
+    public static Rule getRule(GatewayRequest gatewayRequest){
+        Rule rule = null;
+        try {
+            ConcurrentHashMap<String, Rule> ruleMap = DynamicConfigManager.getInstance().getRuleMap();
+            for(Rule ruleTmp : ruleMap.values()) {
+                boolean flag = true;
+                // 需要满足所有predicate，才能认为此request满足此rule
+                Set<PredicateConfig> predicateConfigs = ruleTmp.getPredicateConfigs();
+                for(PredicateConfig predicateConfig : predicateConfigs) {
+                    final String predicateId = predicateConfig.getId();
+                    // 判断请求是否满足此predicate
+                    final Boolean isMatch = PredicateHelper.getMatchResult(predicateId, gatewayRequest, predicateConfig);
+                    if(isMatch == null) {
+                        throw new RuntimeException("cant obtain match result, predicateId:"+predicateId+", uri:"+ gatewayRequest.getUri());
+                    }
+                    // 如果有一条predicate不能匹配，说明此request不适合此rule
+                    if(isMatch == false) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if(flag) {
+                    rule = ruleTmp;
+                }
+            }
+        }catch (Exception e) {
+            logger.error("getRule error",e);
+        }
+        return rule;
     }
 }

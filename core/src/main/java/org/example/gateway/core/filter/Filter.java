@@ -1,6 +1,8 @@
 package org.example.gateway.core.filter;
 
 
+import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.core.context.GatewayContext;
 
 /**
@@ -17,4 +19,12 @@ public interface Filter {
         }
         return Integer.MAX_VALUE;
     }
+
+
+    /**
+     * 将JSONObjet对象转换成FilterConfig对象
+     * @param filterConfigJsonObj
+     * @return
+     */
+    FilterConfig toFilterConfig(JSONObject filterConfigJsonObj);
 }

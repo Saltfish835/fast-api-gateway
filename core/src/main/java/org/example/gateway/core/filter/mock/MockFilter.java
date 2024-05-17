@@ -1,6 +1,8 @@
 package org.example.gateway.core.filter.mock;
 
 
+import com.alibaba.fastjson.JSONObject;
+import org.example.gateway.common.config.FilterConfig;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
@@ -29,5 +31,13 @@ public class MockFilter implements Filter {
         ResponseHelper.writeResponse(ctx);
         logger.info("mock {} {} {}", ctx.getRequest().getHttpMethod(), ctx.getRequest().getPath(), value);
         ctx.terminated();
+    }
+
+    @Override
+    public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
+        final MockFilterConfig mockConfig = new MockFilterConfig();
+        mockConfig.setId(filterConfigJsonObj.getString("id"));
+        mockConfig.setValue(filterConfigJsonObj.getString("value"));
+        return mockConfig;
     }
 }
