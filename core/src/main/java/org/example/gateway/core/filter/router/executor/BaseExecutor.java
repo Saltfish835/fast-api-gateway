@@ -4,7 +4,6 @@ import com.netflix.hystrix.*;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
 import org.example.gateway.common.config.Rule;
-import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ConnectException;
 import org.example.gateway.common.exception.ResponseException;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 public abstract class BaseExecutor implements IExecutor{
@@ -66,7 +66,10 @@ public abstract class BaseExecutor implements IExecutor{
             @Override
             protected Object run() throws Exception {
                 // 实际执行路由
-                route(gatewayContext);
+                final Object res = route(gatewayContext);
+                if(res instanceof Future) {
+                    ((Future)res).get();
+                }
                 return null;
             }
 
@@ -87,7 +90,7 @@ public abstract class BaseExecutor implements IExecutor{
      * 调用下游服务
      * @param ctx
      */
-    protected abstract void route(GatewayContext ctx);
+    protected abstract Object route(GatewayContext ctx);
 
 
 

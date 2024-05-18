@@ -41,7 +41,7 @@ public class DubboExecutor extends BaseExecutor{
      * @return
      */
     @Override
-    protected void route(GatewayContext ctx) {
+    protected Object route(GatewayContext ctx) {
         final GatewayRequest gatewayRequest = ctx.getRequest();
         Object result = null;
         Throwable throwable = null;
@@ -73,6 +73,7 @@ public class DubboExecutor extends BaseExecutor{
             throwable = t;
         }
         complete(gatewayRequest.build(), result, throwable, ctx);
+        return null;
     }
 
 }

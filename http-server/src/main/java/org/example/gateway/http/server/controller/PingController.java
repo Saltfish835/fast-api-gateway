@@ -40,12 +40,12 @@ public class PingController {
 
     @ApiInvoker(path = "/http-server/sayHi")
     @PostMapping("/http-server/sayHi")
-    public String sayHi(@RequestParam("name") String name) {
+    public String sayHi(@RequestParam("name") String name) throws InterruptedException {
         logger.info("/http-server/sayHi, {}", name);
         sayHiCount++;
         if(sayHiCount <= 5) {
             logger.info("/http-server/sayHi by zero");
-            int i = 1/0;
+            Thread.sleep(60 * 1000);
         }
         logger.info("/http-server/sayHi finish");
         return "hello "+name;

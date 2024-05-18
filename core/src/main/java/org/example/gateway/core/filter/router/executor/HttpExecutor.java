@@ -42,7 +42,7 @@ public class HttpExecutor extends BaseExecutor{
      * @param ctx
      * @return
      */
-    public void route(GatewayContext ctx) {
+    public Object route(GatewayContext ctx) {
         final ServiceInstance serviceInstance = ctx.getServiceInstance();
         final GatewayRequest request = ctx.getRequest();
         if (serviceInstance != null && request != null) {
@@ -70,5 +70,6 @@ public class HttpExecutor extends BaseExecutor{
                 complete(req, response, throwable, ctx);
             }));
         }
+        return future;
     }
 }

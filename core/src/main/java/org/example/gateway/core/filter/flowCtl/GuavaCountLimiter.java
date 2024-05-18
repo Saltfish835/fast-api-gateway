@@ -2,6 +2,7 @@ package org.example.gateway.core.filter.flowCtl;
 
 import com.google.common.util.concurrent.RateLimiter;
 import org.apache.commons.lang3.StringUtils;
+import org.example.gateway.common.constants.BasicConst;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +16,7 @@ public class GuavaCountLimiter {
 
     private double maxPermits;
 
-    public static ConcurrentHashMap<String, GuavaCountLimiter> resourceRateLimiterMap = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, GuavaCountLimiter> resourceRateLimiterMap = new ConcurrentHashMap<>();
 
     public GuavaCountLimiter(double maxPermits) {
         this.maxPermits = maxPermits;
@@ -32,11 +33,12 @@ public class GuavaCountLimiter {
                 StringUtils.isEmpty(flowCtlConfig.getType()) || flowCtlConfig.getConfig() == null) {
             return null;
         }
-        final String key = new StringBuffer().append(serviceId).append(".").append(flowCtlConfig.getValue()).toString();
+        final String key = new StringBuffer().append(serviceId).append(BasicConst.DIT_SEPARATOR).append(flowCtlConfig.getValue()).toString();
         GuavaCountLimiter guavaCountLimiter = resourceRateLimiterMap.get(key);
         if(guavaCountLimiter == null) {
-            // 每秒产生50个令牌
-            guavaCountLimiter = new GuavaCountLimiter(50);
+            // 每秒产生多少个令牌
+            // TODO 动态修改配置后，此处缓存不会更新
+            guavaCountLimiter = new GuavaCountLimiter(flowCtlConfig.getConfig().getPermits()/flowCtlConfig.getConfig().getDuration());
             resourceRateLimiterMap.putIfAbsent(key, guavaCountLimiter);
         }
         return guavaCountLimiter;

@@ -21,7 +21,7 @@ public class FlowCtlByPathRule implements IGatewayFlowCtlRule{
 
     private static final String LIMIT_MESSAGE ="您的请求过于频繁,请稍后重试";
 
-    private static ConcurrentHashMap<String, FlowCtlByPathRule> servicePathMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, FlowCtlByPathRule> servicePathMap = new ConcurrentHashMap<>();
 
     public FlowCtlByPathRule(String serviceId, String path, RedisCountLimiter redisCountLimiter) {
         this.serviceId = serviceId;
