@@ -32,8 +32,16 @@ public class Rule implements Serializable {
 
     /**
      * 调用下游服务失败后的重试次数
+     * 可选
      */
     private Integer retry;
+
+    /**
+     * 熔断器配置
+     * 可选
+     */
+    private Breaker breaker;
+
 
     /**
      * 断言列表
@@ -53,16 +61,16 @@ public class Rule implements Serializable {
     }
 
 
-    public Rule(String id, String serviceId, String version, String protocol, Integer retry, Set<PredicateConfig> predicateConfigs, Set<FilterConfig> filterConfigs) {
+    public Rule(String id, String serviceId, String version, String protocol, Integer retry, Breaker breaker, Set<PredicateConfig> predicateConfigs, Set<FilterConfig> filterConfigs) {
         this.id = id;
         this.serviceId = serviceId;
         this.version = version;
         this.protocol = protocol;
         this.retry = retry;
+        this.breaker = breaker;
         this.predicateConfigs = predicateConfigs;
         this.filterConfigs = filterConfigs;
     }
-
 
     public String getId() {
         return id;
@@ -120,6 +128,14 @@ public class Rule implements Serializable {
         this.filterConfigs = filterConfigs;
     }
 
+    public Breaker getBreaker() {
+        return breaker;
+    }
+
+    public void setBreaker(Breaker breaker) {
+        this.breaker = breaker;
+    }
+
     public String getUniqueId() {
         return this.serviceId + BasicConst.COLON_SEPARATOR + this.version;
     }
@@ -149,6 +165,61 @@ public class Rule implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+
+
+    /**
+     * 熔断器配置
+     */
+    public static class Breaker {
+        /**
+         * 核心线程数
+         */
+        private Integer threadCoreSize;
+
+        /**
+         * 熔断时的响应
+         */
+        private String fallbackResponse;
+
+        /**
+         * 超时时间
+         */
+        private Integer timeoutInMilliseconds;
+
+        public Breaker() {
+        }
+
+        public Breaker(Integer threadCoreSize, String fallbackResponse, Integer timeoutInMilliseconds) {
+            this.threadCoreSize = threadCoreSize;
+            this.fallbackResponse = fallbackResponse;
+            this.timeoutInMilliseconds = timeoutInMilliseconds;
+        }
+
+        public Integer getThreadCoreSize() {
+            return threadCoreSize;
+        }
+
+        public void setThreadCoreSize(Integer threadCoreSize) {
+            this.threadCoreSize = threadCoreSize;
+        }
+
+        public String getFallbackResponse() {
+            return fallbackResponse;
+        }
+
+        public void setFallbackResponse(String fallbackResponse) {
+            this.fallbackResponse = fallbackResponse;
+        }
+
+        public Integer getTimeoutInMilliseconds() {
+            return timeoutInMilliseconds;
+        }
+
+        public void setTimeoutInMilliseconds(Integer timeoutInMilliseconds) {
+            this.timeoutInMilliseconds = timeoutInMilliseconds;
+        }
     }
 
 }

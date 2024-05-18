@@ -54,8 +54,6 @@ public interface FilterConst {
     String MOCK_FILTER_NAME = "mock_filter";
     int MOCK_FILTER_ORDER = 0;
 
-    String HYSTRIX_ID = "hystrix";
-    String HYSTRIX_NAME = "hystrix_filter";
 
     String STRIP_PREFIX_FILTER_ID = "stripPrefix";
     String STRIP_PREFIX_FILTER_NAME = "strip_prefix_filter";

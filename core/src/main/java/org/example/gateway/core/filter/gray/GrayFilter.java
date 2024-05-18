@@ -33,6 +33,8 @@ public class GrayFilter implements Filter {
 
     @Override
     public FilterConfig toFilterConfig(JSONObject filterConfigJsonObj) {
-        return null;
+        final GrayFilterConfig grayFilterConfig = new GrayFilterConfig();
+        grayFilterConfig.setId(filterConfigJsonObj.getString("id"));
+        return grayFilterConfig;
     }
 }

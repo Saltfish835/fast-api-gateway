@@ -36,6 +36,7 @@ public class Bootstrap {
         PluginLoader.getInstance().load(config);
 
         // 启动容器
+        logger.info("gateway is starting...");
         final Container container = new Container(config);
         container.start();
 
@@ -52,9 +53,10 @@ public class Bootstrap {
             public void run() {
                 config.getRegisterCenter().deregister(buildGatewayServiceDefinition(config), buildGatewayServiceInstance(config));
                 container.shutdown();
+                logger.info("gateway has shutdown");
             }
         });
-
+        logger.info("gateway has started");
     }
 
 

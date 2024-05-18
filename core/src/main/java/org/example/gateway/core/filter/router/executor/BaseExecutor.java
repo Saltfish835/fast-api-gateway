@@ -3,6 +3,7 @@ package org.example.gateway.core.filter.router.executor;
 import com.netflix.hystrix.*;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
+import org.example.gateway.common.config.Rule;
 import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.common.exception.ConnectException;
@@ -35,32 +36,30 @@ public abstract class BaseExecutor implements IExecutor{
     @Override
     public void execute(GatewayContext ctx) {
         // 获取熔断器配置
-        HystrixFilterConfig hystrixConfig = (HystrixFilterConfig)ctx.getRule().getFilterConfig(FilterConst.HYSTRIX_ID);
-        if(hystrixConfig != null) {
+        final Rule.Breaker breaker = ctx.getRule().getBreaker();
+        if(breaker != null) {
             // 当前请求配置了熔断策略
-            ctx.setHystrix(true);
-            routeWithHystrix(ctx, hystrixConfig);
+            routeWithBreaker(ctx, breaker);
         }else {
             // 当前请求没有配置熔断策略
-            ctx.setHystrix(false);
             route(ctx);
         }
     }
 
 
     /**
-     * 当前请求配置了熔断，走此方法进行转发
+     * 配置了熔断器则走此方法进行转发
      * @param gatewayContext
-     * @param hystrixConfig
+     * @param breaker
      */
-    protected void routeWithHystrix(GatewayContext gatewayContext, HystrixFilterConfig hystrixConfig) {
+    protected void routeWithBreaker(GatewayContext gatewayContext, Rule.Breaker breaker) {
         final HystrixCommand.Setter setter = HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(gatewayContext.getUniqueId()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(gatewayContext.getRequest().getPath()))
                 .andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.Setter()
-                        .withCoreSize(hystrixConfig.getThreadCoreSize()))
+                        .withCoreSize(breaker.getThreadCoreSize()))
                 .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
                         .withExecutionIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
-                        .withExecutionTimeoutInMilliseconds(hystrixConfig.getTimeoutInMilliseconds())
+                        .withExecutionTimeoutInMilliseconds(breaker.getTimeoutInMilliseconds())
                         .withExecutionIsolationThreadInterruptOnTimeout(true)
                         .withExecutionTimeoutEnabled(true));
         final HystrixCommand<Object> hystrixCommand = new HystrixCommand<Object>(setter) {
@@ -74,7 +73,7 @@ public abstract class BaseExecutor implements IExecutor{
             @Override
             protected Object getFallback() {
                 // 当熔断发生时，执行降级逻辑
-                gatewayContext.setResponse(hystrixConfig.getFallbackResponse());
+                gatewayContext.setResponse(breaker.getFallbackResponse());
                 gatewayContext.written();
                 return null;
             }
@@ -103,10 +102,12 @@ public abstract class BaseExecutor implements IExecutor{
         // 释放请求资源
         gatewayContext.releaseRequest();
         final int currentRetryTimes = gatewayContext.getCurrentRetryTimes();
-        final int confRetryTimes = gatewayContext.getRule().getRetry();
-        // 当前请求超时或者出现IO异常 且 没有超过最大重试次数 且 没有配置熔断 才进行重试
-        if((throwable instanceof TimeoutException || throwable instanceof IOException)
-                && currentRetryTimes <= confRetryTimes && gatewayContext.isHystrix() == false) {
+        final Integer confRetryTimes = gatewayContext.getRule().getRetry();
+        final Rule.Breaker breaker = gatewayContext.getRule().getBreaker();
+        // 进行重试
+        if((throwable instanceof TimeoutException || throwable instanceof IOException) //当前请求超时或者出现IO异常
+                && confRetryTimes != null && currentRetryTimes <= confRetryTimes  // 当前配置了重试且没有超过最大重试次数
+                && breaker == null) { // 当前没有配置熔断
             doRetry(gatewayContext, currentRetryTimes);
             return;
         }

@@ -26,8 +26,6 @@ public class GatewayContext extends BaseContext{
 
     private boolean gray;
 
-    private boolean hystrix;
-
     private Timer.Sample timerSample;
 
     private ServiceDefinition serviceDefinition;
@@ -212,13 +210,5 @@ public class GatewayContext extends BaseContext{
 
     public void setServiceInstance(ServiceInstance serviceInstance) {
         this.serviceInstance = serviceInstance;
-    }
-
-    public boolean isHystrix() {
-        return hystrix;
-    }
-
-    public void setHystrix(boolean hystrix) {
-        this.hystrix = hystrix;
     }
 }

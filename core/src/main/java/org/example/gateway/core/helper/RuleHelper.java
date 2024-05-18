@@ -38,14 +38,23 @@ public class RuleHelper {
             rule.setServiceId(ruleJsonObj.getString(RuleConst.SERVICE_ID));
             rule.setVersion(ruleJsonObj.getString(RuleConst.VERSION));
             rule.setProtocol(ruleJsonObj.getString(RuleConst.PROTOCOL));
-            rule.setRetry(ruleJsonObj.getInteger(RuleConst.RETRY));
+            // 解析可选配置
+            if(ruleJsonObj.containsKey(RuleConst.RETRY)) { // retry是可选配置
+                rule.setRetry(ruleJsonObj.getInteger(RuleConst.RETRY));
+            }
+            if(ruleJsonObj.containsKey(RuleConst.BREAKER)) { // breaker是可选配置
+                final JSONObject breakerJsonObj = ruleJsonObj.getJSONObject(RuleConst.BREAKER);
+                final Integer breakerTimeoutMs = breakerJsonObj.getInteger(RuleConst.BREAKER_TIMEOUT_MS);
+                final Integer breakerThreadCoreSize = breakerJsonObj.getInteger(RuleConst.BREAKER_THREAD_CORE_SIZE);
+                final String breakerFallbackResponse = breakerJsonObj.getString(RuleConst.BREAKER_FALLBACK_RESPONSE);
+                rule.setBreaker(new Rule.Breaker(breakerThreadCoreSize, breakerFallbackResponse, breakerTimeoutMs));
+            }
             // 解析predicate配置
             Set<PredicateConfig> predicateConfigs = new HashSet<>();
             JSONArray predicateConfigJsonArr = ruleJsonObj.getJSONArray(RuleConst.PREDICATE_CONFIGS);
             for(int j=0; j<predicateConfigJsonArr.size(); j++) {
                 JSONObject predicateConfJsonObj = predicateConfigJsonArr.getJSONObject(j);
                 String predicateId = predicateConfJsonObj.getString(RuleConst.PREDICATE_ID);
-                // TODO 将jsonObj转换成对应类型的对象
                 final PredicateConfig predicateConfig = PredicateHelper.getPredicateConfig(predicateId, predicateConfJsonObj);
                 if(predicateConfig == null) {
                     throw new RuntimeException("parse predicateConfJsonObj error");
@@ -59,7 +68,6 @@ public class RuleHelper {
             for(int j=0; j<filterConfigJsonArr.size(); j++) {
                 final JSONObject filterConfigJsonObj = filterConfigJsonArr.getJSONObject(j);
                 final String filterId = filterConfigJsonObj.getString(RuleConst.FILTER_ID);
-                // TODO 将jsonObj转换成对应类型的对象
                 final FilterConfig filterConfig = FilterHelper.getFilterConfig(filterId, filterConfigJsonObj);
                 if(filterConfig == null) {
                     throw new RuntimeException("parse filterConfigJsonObj error");

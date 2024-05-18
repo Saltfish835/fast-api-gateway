@@ -8,10 +8,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FilterHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(FilterHelper.class);
+
+
+    /**
+     * 缓存实例
+     */
+    private static final ConcurrentHashMap<String, Object> instanceMap = new ConcurrentHashMap<>();
+
+    /**
+     * 缓存方法
+     */
+    private static final ConcurrentHashMap<String, Method> methodMap = new ConcurrentHashMap<>();
 
     /**
      * 根据filter id 获取 filter类型
@@ -39,8 +51,20 @@ public class FilterHelper {
                 throw new RuntimeException("filter not found, filterId:" + filterId);
             }
             // 通过反射调用方法
-            final Object instance = filterType.newInstance();
-            final Method toFilterConfig = filterType.getMethod("toFilterConfig", JSONObject.class);
+            Object instance = null;
+            if(instanceMap.get(filterId) != null) {
+                instance = instanceMap.get(filterId);
+            }else {
+                instance = filterType.newInstance();
+                instanceMap.put(filterId, instance);
+            }
+            Method toFilterConfig = null;
+            if(methodMap.get(filterId) != null) {
+                toFilterConfig = methodMap.get(filterId);
+            }else {
+                toFilterConfig = filterType.getMethod("toFilterConfig", JSONObject.class);
+                methodMap.put(filterId, toFilterConfig);
+            }
             filterConfig = (FilterConfig)toFilterConfig.invoke(instance, filterConfJsonObj);
         }catch (Exception e) {
             logger.error("getFilterConfig error",e);

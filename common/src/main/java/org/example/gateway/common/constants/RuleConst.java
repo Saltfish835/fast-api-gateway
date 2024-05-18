@@ -14,6 +14,14 @@ public interface RuleConst {
 
     String RETRY = "retry";
 
+    String BREAKER = "breaker";
+
+    String BREAKER_TIMEOUT_MS = "timeoutInMilliseconds";
+
+    String BREAKER_THREAD_CORE_SIZE = "threadCoreSize";
+
+    String BREAKER_FALLBACK_RESPONSE = "fallbackResponse";
+
     String PREDICATE_CONFIGS = "predicateConfigs";
 
     String FILTER_CONFIGS = "filterConfigs";

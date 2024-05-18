@@ -9,10 +9,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PredicateHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(PredicateHelper.class);
+
+    /**
+     * 缓存实例
+     */
+    private static final ConcurrentHashMap<String,Object> instanceMap = new ConcurrentHashMap<>();
+
+    /**
+     * 缓存toPredicateConfig方法
+     */
+    private static final ConcurrentHashMap<String,Method> toPredicateConfigMethodMap = new ConcurrentHashMap<>();
+
+    /**
+     * 缓存isMatch方法
+     */
+    private static final ConcurrentHashMap<String,Method> isMatchMethodMap = new ConcurrentHashMap<>();
+
 
     /**
      * 根据predicate id 获取predicate类型
@@ -40,8 +57,18 @@ public class PredicateHelper {
                 throw new RuntimeException("predicate not found, predicateId:" + predicateId);
             }
             // 通过反射调用方法
-            final Object instance = predicateType.newInstance();
-            final Method toPredicateConfig = predicateType.getMethod("toPredicateConfig", JSONObject.class);
+            Object instance = null;
+            if(instanceMap.get(predicateId) != null) {
+                instance = instanceMap.get(predicateId);
+            }else {
+                instance = predicateType.newInstance();
+            }
+            Method toPredicateConfig = null;
+            if(toPredicateConfigMethodMap.get(predicateId) != null) {
+                toPredicateConfig = toPredicateConfigMethodMap.get(predicateId);
+            }else {
+                toPredicateConfig = predicateType.getMethod("toPredicateConfig", JSONObject.class);
+            }
             predicateConfig = (PredicateConfig)toPredicateConfig.invoke(instance, predicateConfJsonObj);
         }catch (Exception e) {
             logger.error("getPredicateConfig error",e);
@@ -66,8 +93,18 @@ public class PredicateHelper {
                 throw new RuntimeException("predicate not found, predicateId:" + predicateId);
             }
             // 通过反射调用方法
-            final Object instance = predicateType.newInstance();
-            final Method isMatch = predicateType.getMethod("isMatch", GatewayRequest.class, PredicateConfig.class);
+            Object instance = null;
+            if(instanceMap.get(predicateId) != null) {
+                instance = instanceMap.get(predicateId);
+            }else {
+                instance = predicateType.newInstance();
+            }
+            Method isMatch = null;
+            if(isMatchMethodMap.get(predicateId) != null) {
+                isMatch = isMatchMethodMap.get(predicateId);
+            }else {
+                isMatch = predicateType.getMethod("isMatch", GatewayRequest.class, PredicateConfig.class);
+            }
             matchResult = (Boolean) isMatch.invoke(instance, gatewayRequest, predicateConfig);
         }catch (Exception e) {
             logger.error("getMatchResult error", e);
