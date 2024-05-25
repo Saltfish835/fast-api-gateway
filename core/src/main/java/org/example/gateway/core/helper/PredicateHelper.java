@@ -15,6 +15,7 @@ public class PredicateHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(PredicateHelper.class);
 
+    // TODO 后续使用Caffine来缓存
     /**
      * 缓存实例
      */
@@ -56,19 +57,23 @@ public class PredicateHelper {
             if(predicateType == null) {
                 throw new RuntimeException("predicate not found, predicateId:" + predicateId);
             }
-            // 通过反射调用方法
+            // 获取predicate对象
             Object instance = null;
             if(instanceMap.get(predicateId) != null) {
                 instance = instanceMap.get(predicateId);
             }else {
                 instance = predicateType.newInstance();
+                instanceMap.put(predicateId,instance);
             }
+            // 获取toPredicateConfig方法
             Method toPredicateConfig = null;
             if(toPredicateConfigMethodMap.get(predicateId) != null) {
                 toPredicateConfig = toPredicateConfigMethodMap.get(predicateId);
             }else {
                 toPredicateConfig = predicateType.getMethod("toPredicateConfig", JSONObject.class);
+                toPredicateConfigMethodMap.put(predicateId, toPredicateConfig);
             }
+            // 使用predicate对象调用toPredicateConfig方法
             predicateConfig = (PredicateConfig)toPredicateConfig.invoke(instance, predicateConfJsonObj);
         }catch (Exception e) {
             logger.error("getPredicateConfig error",e);
@@ -92,19 +97,23 @@ public class PredicateHelper {
             if(predicateType == null) {
                 throw new RuntimeException("predicate not found, predicateId:" + predicateId);
             }
-            // 通过反射调用方法
+            // 获取predicate对象
             Object instance = null;
             if(instanceMap.get(predicateId) != null) {
                 instance = instanceMap.get(predicateId);
             }else {
                 instance = predicateType.newInstance();
+                instanceMap.put(predicateId, instance);
             }
+            // 获取isMatch方法
             Method isMatch = null;
             if(isMatchMethodMap.get(predicateId) != null) {
                 isMatch = isMatchMethodMap.get(predicateId);
             }else {
                 isMatch = predicateType.getMethod("isMatch", GatewayRequest.class, PredicateConfig.class);
+                isMatchMethodMap.put(predicateId, isMatch);
             }
+            // 使用predicate对象调用isMatch方法
             matchResult = (Boolean) isMatch.invoke(instance, gatewayRequest, predicateConfig);
         }catch (Exception e) {
             logger.error("getMatchResult error", e);

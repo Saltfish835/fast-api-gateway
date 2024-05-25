@@ -1,24 +1,28 @@
 package org.example.gateway.core.disruptor;
 
 
+/**
+ * 多生产者多消费者队列
+ * @param <E>
+ */
 public interface ParallelQueue<E> {
 
     /**
-     * 添加单个元素
+     * 往队列中添加单个元素
      * @param event
      */
     void add(E event);
 
 
     /**
-     * 添加多个元素
+     * 往队列中添加多个元素
      * @param events
      */
     void add(E... events);
 
 
     /**
-     * 添加单个元素
+     * 往队列中添加单个元素
      * @param event
      * @return
      */
@@ -26,7 +30,7 @@ public interface ParallelQueue<E> {
 
 
     /**
-     * 添加多个元素
+     * 往队列中添加多个元素
      * @param events
      * @return
      */

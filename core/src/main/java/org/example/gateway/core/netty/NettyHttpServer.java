@@ -53,14 +53,16 @@ public class NettyHttpServer implements LifeCycle {
         this.serverBootstrap = new ServerBootstrap();
         if(useEpoll()) {
             this.eventLoopGroupBoss = new EpollEventLoopGroup(config.getEventLoopGroupBossNum(),
-                    new DefaultThreadFactory("netty-boss-nio"));
+                    new DefaultThreadFactory("netty-boss-epoll"));
             this.eventLoopGroupWorker = new EpollEventLoopGroup(config.getEventLoopGroupWorkerNum(),
-                    new DefaultThreadFactory("netty-worker-nio"));
+                    new DefaultThreadFactory("netty-worker-epoll"));
+            logger.info("epoll is used");
         }else {
             this.eventLoopGroupBoss = new NioEventLoopGroup(config.getEventLoopGroupBossNum(),
                     new DefaultThreadFactory("netty-boss-nio"));
             this.eventLoopGroupWorker = new NioEventLoopGroup(config.getEventLoopGroupWorkerNum(),
                     new DefaultThreadFactory("netty-worker-nio"));
+            logger.info("nio is used");
         }
     }
 

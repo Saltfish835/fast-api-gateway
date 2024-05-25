@@ -18,18 +18,27 @@ public class PingController {
 
     private static final Logger logger = LoggerFactory.getLogger(PingController.class);
 
-    private static Integer timeoutCount = 0;
+    private static Integer retryCount = 0;
 
     private static Integer sayHiCount = 0;
 
+    /**
+     * 正常流程
+     * @return
+     */
     @ApiInvoker(path = "/http-server/ping")
     @GetMapping("/http-server/ping")
-    public String ping() {
+    public String ping() throws InterruptedException {
         logger.info("/http-server/ping");
         return "pong";
     }
 
 
+    /**
+     * 测试限流
+     * @param id
+     * @return
+     */
     @ApiInvoker(path = "/http-server/getNameById")
     @GetMapping("/http-server/getNameById")
     public String getNameById(@RequestParam("id") Integer id) {
@@ -38,13 +47,19 @@ public class PingController {
     }
 
 
+    /**
+     * 测试服务降级
+     * @param name
+     * @return
+     * @throws InterruptedException
+     */
     @ApiInvoker(path = "/http-server/sayHi")
     @PostMapping("/http-server/sayHi")
     public String sayHi(@RequestParam("name") String name) throws InterruptedException {
         logger.info("/http-server/sayHi, {}", name);
         sayHiCount++;
         if(sayHiCount <= 5) {
-            logger.info("/http-server/sayHi by zero");
+            logger.info("/http-server/sayHi timeout");
             Thread.sleep(60 * 1000);
         }
         logger.info("/http-server/sayHi finish");
@@ -52,16 +67,21 @@ public class PingController {
     }
 
 
-    @ApiInvoker(path = "/http-server/testTimeout")
-    @PostMapping("/http-server/testTimeout")
-    public String testTimeout(@RequestParam("timeout") Integer seconds) throws InterruptedException {
-        timeoutCount++;
-        logger.info("/http-server/testTimeout");
-        if(timeoutCount < 3) {
-            logger.info("/http-server/testTimeout, {}s", seconds);
-            Thread.sleep(seconds * 1000);
+    /**
+     * 测试重试
+     * @return
+     * @throws InterruptedException
+     */
+    @ApiInvoker(path = "/http-server/testRetry")
+    @PostMapping("/http-server/testRetry")
+    public String testRetry() throws InterruptedException {
+        retryCount++;
+        logger.info("/http-server/testRetry");
+        if(retryCount < 3) {
+            logger.info("/http-server/testTimeout, {}s", 30);
+            Thread.sleep(30 * 1000);
         }
-        logger.info("/http-server/testTimeout finish");
-        return "has sleep " + seconds + "s";
+        logger.info("/http-server/testRetry finish");
+        return "has sleep " + 30 + "s";
     }
 }

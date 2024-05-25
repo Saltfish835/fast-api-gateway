@@ -1,15 +1,10 @@
 package org.example.gateway.core.netty.processor;
 
 import com.lmax.disruptor.dsl.ProducerType;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
-import org.example.gateway.common.enums.ResponseCode;
 import org.example.gateway.core.Config;
 import org.example.gateway.core.context.HttpRequestWrapper;
-import org.example.gateway.core.disruptor.EventListener;
+import org.example.gateway.core.disruptor.BatchEventListenerProcessor;
 import org.example.gateway.core.disruptor.ParallelQueueHandler;
-import org.example.gateway.core.helper.ResponseHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,48 +27,27 @@ public class DisruptorNettyCoreProcessor implements NettyProcessor{
     public DisruptorNettyCoreProcessor(Config config, NettyCoreProcessor nettyCoreProcessor) {
         this.config = config;
         this.nettyCoreProcessor = nettyCoreProcessor;
-        ParallelQueueHandler.Builder builder = new ParallelQueueHandler.Builder().setBufferSize(config.getBufferSize())
-                .setThreads(config.getProcessThread())
-                .setProducerType(ProducerType.MULTI)
+        // 初始化多生产者多消费者无锁队列
+        ParallelQueueHandler.Builder builder = new ParallelQueueHandler.Builder().setBufferSize(config.getBufferSize()) // 环形缓冲区的大小
+                .setThreads(this.config.getProcessThread()) // 处理器线程池大小
+                .setProducerType(ProducerType.MULTI) // 生产者类型 单生产者 or 多生产者
                 .setNamePrefix(THREAD_NAME_PREFIX)
-                .setWaitStrategy(config.getWaitStrategy());
-        final BatchEventListenerProcessor batchEventListenerProcessor = new BatchEventListenerProcessor();
-        builder.setListener(batchEventListenerProcessor);
+                .setWaitStrategy(config.getWaitStrategy()) // 消费者阻塞策略
+                .setListener(new BatchEventListenerProcessor(this.nettyCoreProcessor)); // 事件处理器
+        // 创建多生产者多消费者无锁队列
         this.parallelQueueHandler = builder.build();
     }
 
+    /**
+     * 处理请求
+     * @param requestWrapper
+     */
     @Override
     public void process(HttpRequestWrapper requestWrapper) {
+        // 将请求交给并行队列处理器
         this.parallelQueueHandler.add(requestWrapper);
     }
 
-
-
-    public class BatchEventListenerProcessor implements EventListener<HttpRequestWrapper> {
-        @Override
-        public void onEvent(HttpRequestWrapper event) {
-            nettyCoreProcessor.process(event);
-        }
-
-        @Override
-        public void onException(Throwable ex, long sequence, HttpRequestWrapper event) {
-            final FullHttpRequest request = event.getRequest();
-            final ChannelHandlerContext context = event.getContext();
-            try{
-                logger.error("BatchEventListenerProcessor onException请求写回失败，request:{},errMsg:{} ",request,ex.getMessage(),ex);
-                // 构建响应对象
-                final FullHttpResponse httpResponse = ResponseHelper.getHttpResponse(ResponseCode.INTERNAL_ERROR);
-                if(!HttpUtil.isKeepAlive(request)) {
-                    context.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
-                }else {
-                    httpResponse.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-                    context.writeAndFlush(httpResponse);
-                }
-            }catch (Exception e) {
-                logger.error("BatchEventListenerProcessor onException请求写回失败，request:{},errMsg:{} ",request,e.getMessage(),e);
-            }
-        }
-    }
 
     @Override
     public void start() {

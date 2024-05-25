@@ -66,6 +66,7 @@ public class ConfigLoader {
                 properties.load(inputStream);
                 // 使用配置文件中的配置覆盖默认配置
                 PropertiesUtils.properties2Object(properties, config);
+                logger.info("load config from config file: {}", properties.toString());
             } catch (IOException e) {
                 logger.warn("load config file {} error", CONFIG_FILE, e);
             }finally {
@@ -88,6 +89,7 @@ public class ConfigLoader {
         final Properties properties = new Properties();
         properties.putAll(env);
         PropertiesUtils.properties2Object(properties, config, ENV_PREFIX);
+        logger.info("load config from environment variables: {}", properties.toString());
     }
 
     /**
@@ -96,6 +98,7 @@ public class ConfigLoader {
     private void loadFromJVM() {
         final Properties properties = System.getProperties();
         PropertiesUtils.properties2Object(properties, config, JVM_PREFIX);
+        logger.info("load config from jvm options: {}", properties.toString());
     }
 
     /**
@@ -112,6 +115,7 @@ public class ConfigLoader {
                 }
             }
             PropertiesUtils.properties2Object(properties, config);
+            logger.info("load config from program arguments: {}", properties.toString());
         }
     }
 

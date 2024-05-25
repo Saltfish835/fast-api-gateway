@@ -56,7 +56,7 @@ public class Bootstrap {
                 logger.info("gateway has shutdown");
             }
         });
-        logger.info("gateway has started");
+        logger.info("gateway started!");
     }
 
 

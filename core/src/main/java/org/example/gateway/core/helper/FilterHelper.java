@@ -15,6 +15,7 @@ public class FilterHelper {
     private static final Logger logger = LoggerFactory.getLogger(FilterHelper.class);
 
 
+    // TODO 后续使用Caffine来缓存
     /**
      * 缓存实例
      */
@@ -50,7 +51,7 @@ public class FilterHelper {
             if(filterType == null) {
                 throw new RuntimeException("filter not found, filterId:" + filterId);
             }
-            // 通过反射调用方法
+            // 获取filter对象
             Object instance = null;
             if(instanceMap.get(filterId) != null) {
                 instance = instanceMap.get(filterId);
@@ -58,6 +59,7 @@ public class FilterHelper {
                 instance = filterType.newInstance();
                 instanceMap.put(filterId, instance);
             }
+            // 获取toFilterConfig方法
             Method toFilterConfig = null;
             if(methodMap.get(filterId) != null) {
                 toFilterConfig = methodMap.get(filterId);
@@ -65,6 +67,7 @@ public class FilterHelper {
                 toFilterConfig = filterType.getMethod("toFilterConfig", JSONObject.class);
                 methodMap.put(filterId, toFilterConfig);
             }
+            // 使用filter对象调用toFilterConfig方法
             filterConfig = (FilterConfig)toFilterConfig.invoke(instance, filterConfJsonObj);
         }catch (Exception e) {
             logger.error("getFilterConfig error",e);

@@ -46,8 +46,10 @@ public class Container implements LifeCycle{
     public void init() {
         final NettyCoreProcessor nettyCoreProcessor = new NettyCoreProcessor();
         if(GatewayConst.BUFFER_TYPE_PARALLEL.equalsIgnoreCase(config.getBufferType())) {
+            logger.info("current model is parallel");
             this.nettyProcessor = new DisruptorNettyCoreProcessor(config, nettyCoreProcessor);
         }else {
+            logger.info("current model is serial");
             this.nettyProcessor = nettyCoreProcessor;
         }
         nettyHttpServer = new NettyHttpServer(config, nettyProcessor);
@@ -59,7 +61,6 @@ public class Container implements LifeCycle{
         nettyProcessor.start();
         nettyHttpServer.start();
         nettyHttpClient.start();
-        logger.info("fast-api-gateway started!");
     }
 
     @Override

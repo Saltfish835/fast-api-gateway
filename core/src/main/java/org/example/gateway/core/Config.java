@@ -61,12 +61,24 @@ public class Config {
      */
     private int httpPooledConnectionIdleTimeout = 60 * 1000;
 
+    /**
+     * 是否开启多生产者和多消费者的并行队列
+     */
     private String bufferType = "parallel";
 
+    /**
+     * 环形缓冲区大小
+     */
     private int bufferSize = 1024 * 64;
 
+    /**
+     * 无锁队列线程数
+     */
     private int processThread = Runtime.getRuntime().availableProcessors();
 
+    /**
+     * disruptor生成者等待消费者的策略
+     */
     private String waitStrategy = "blocking";
 
     /**

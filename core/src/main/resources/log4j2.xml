@@ -8,7 +8,10 @@
         <Property name="LOG_HOME">logs</Property>
         <property name="FILE_NAME">gateway-core</property>
         <property name="traceLayout">%m%n</property>
-        <property name="patternLayout">[%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}] [%level{length=5}] [%thread-%tid] [%logger] [%X{hostName}] [%X{ip}] [%X{applicationName}] [%X{traceId}] [%X{spanId}] [%F,%L,%C,%M] [%m] ## '%ex'%n</property>
+<!--        <property name="patternLayout">[%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ}] [%level{length=5}] [%thread-%tid] [%logger] [%X{hostName}] [%X{ip}] [%X{applicationName}] [%X{traceId}] [%X{spanId}] [%F,%L,%C,%M] [%m] ## '%ex'%n</property>-->
+             <property name="patternLayout">%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ} %level{length=5} %thread-%tid %logger %X{spanId} [%F,%L,%C,%M] %m %n</property>
+
+
         <!--
         <property name="jsonLayout">{"time":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%level{length=5}","thread-tid":"%thread-%tid","class":"%logger","hostName":"%X{hostName}","ip":"%X{ip}","applicationName":"%X{applicationName}","traceId":"%X{traceId}","spanId":"%X{spanId}","location":"%F,%L,%C,%M","messageInfo":"%m","throwable":"%ex"}%n</property>
          -->
@@ -39,7 +42,7 @@
             <AppenderRef ref="RandomAccessFile"/>
         </Logger>
 
-        <Root level="debug">
+        <Root level="info">
             <Appender-Ref ref="CONSOLE"/>
             <!--
             <Appender-Ref ref="RandomAccessFile"/>

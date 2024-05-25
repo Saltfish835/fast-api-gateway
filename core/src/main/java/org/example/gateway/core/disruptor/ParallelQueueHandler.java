@@ -40,11 +40,12 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
             workHandlers[i] = new HolderWorkHandler();
         }
         // 创建多个消费者线程池
-        final WorkerPool workerPool = new WorkerPool<>(ringBuffer, sequenceBarrier, new HolderExceptionHandler(), workHandlers);
+        final WorkerPool<Holder> workerPool = new WorkerPool<>(ringBuffer, sequenceBarrier, new HolderExceptionHandler(), workHandlers);
         // 设置多个消费者的sequence序号，用于统计消费进度
         ringBuffer.addGatingSequences(workerPool.getWorkerSequences());
         this.workerPool = workerPool;
     }
+
 
     @Override
     public void add(E event) {
@@ -53,6 +54,7 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
             process(this.eventListener, new IllegalStateException("ParallelQueueHandler is close"), event);
         }
         try {
+            // 往环形缓冲区发布事件
             ringBuffer.publishEvent(this.eventTranslatorOneArg, event);
         }catch (NullPointerException e) {
             process(this.eventListener, new IllegalStateException("ParallelQueueHandler is close"), event);
@@ -133,10 +135,11 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
         }
     }
 
+
     /**
-     * 定义事件
+     * 封装环形缓冲区中存放的对象
      */
-    public class Holder {
+    private class Holder {
         private E event;
 
         public Holder() {
@@ -216,33 +219,6 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
         }
     }
 
-
-
-    private class HolderExceptionHandler implements ExceptionHandler<Holder> {
-        @Override
-        public void handleEventException(Throwable throwable, long l, Holder holder) {
-            try{
-                eventListener.onException(throwable, l, holder.event);
-            }catch (Exception e) {
-
-            }finally {
-                holder.setEvent(null);
-            }
-        }
-
-        @Override
-        public void handleOnStartException(Throwable throwable) {
-            throw new UnsupportedOperationException(throwable);
-        }
-
-        @Override
-        public void handleOnShutdownException(Throwable throwable) {
-            throw new UnsupportedOperationException(throwable);
-        }
-    }
-
-
-
     private class HolderEventTranslator implements  EventTranslatorOneArg<Holder,E>{
         @Override
         public void translateTo(Holder holder, long l, E e) {
@@ -259,11 +235,41 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
     }
 
 
+    /**
+     * 事件处理器
+     */
     private class HolderWorkHandler implements WorkHandler<Holder>{
         @Override
         public void onEvent(Holder holder) throws Exception {
-            eventListener.onEvent(holder.event);
+            eventListener.onEvent(holder.getEvent());
             holder.setEvent(null);
+        }
+    }
+
+
+    /**
+     * 事件处理器
+     */
+    private class HolderExceptionHandler implements ExceptionHandler<Holder> {
+        @Override
+        public void handleEventException(Throwable throwable, long l, Holder holder) {
+            try{
+                eventListener.onException(throwable, l, holder.getEvent());
+            }catch (Exception e) {
+
+            }finally {
+                holder.setEvent(null);
+            }
+        }
+
+        @Override
+        public void handleOnStartException(Throwable throwable) {
+            throw new UnsupportedOperationException(throwable);
+        }
+
+        @Override
+        public void handleOnShutdownException(Throwable throwable) {
+            throw new UnsupportedOperationException(throwable);
         }
     }
 }

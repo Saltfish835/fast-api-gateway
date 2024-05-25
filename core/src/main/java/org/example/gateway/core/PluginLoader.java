@@ -51,7 +51,7 @@ public class PluginLoader {
         final ServiceLoader<ConfigCenter> configCenterServiceLoader = ServiceLoader.load(ConfigCenter.class);
         for(ConfigCenter configCenterTmp : configCenterServiceLoader) {
             configCenter = configCenterTmp;
-            logger.info("load configCenter success:{}",configCenter.getClass());
+            logger.info("load configCenter success: {}",configCenter.getClass());
             break;
         }
         if(configCenter == null) {
@@ -71,7 +71,7 @@ public class PluginLoader {
         final ServiceLoader<RegisterCenter> registerCenterServiceLoader = ServiceLoader.load(RegisterCenter.class);
         for(RegisterCenter registerCenterTmp : registerCenterServiceLoader) {
             registerCenter = registerCenterTmp;
-            logger.info("load registerCenter success:{}",registerCenter.getClass());
+            logger.info("load registerCenter success: {}",registerCenter.getClass());
             break;
         }
         if(registerCenter == null) {
@@ -91,7 +91,7 @@ public class PluginLoader {
         final ServiceLoader<Filter> filterServiceLoader = ServiceLoader.load(Filter.class);
         for(Filter filter : filterServiceLoader) {
             final FilterAspect annotation = filter.getClass().getAnnotation(FilterAspect.class);
-            logger.info("load filter success:{},{},{},{}",filter.getClass(), annotation.id(),annotation.name(),annotation.order());
+            logger.info("load filter success: {},{},{},{}",filter.getClass(), annotation.id(),annotation.name(),annotation.order());
             if(annotation != null) {
                 String filterId = annotation.id();
                 // 如果id为空，则使用类名作为key
@@ -112,7 +112,7 @@ public class PluginLoader {
         final ServiceLoader<Predicate> predicateServiceLoader = ServiceLoader.load(Predicate.class);
         for(Predicate predicate : predicateServiceLoader) {
             final PredicateAspect annotation = predicate.getClass().getAnnotation(PredicateAspect.class);
-            logger.info("load predicate success:{},{},{}",predicate.getClass(), annotation.id(), annotation.name());
+            logger.info("load predicate success: {},{},{}",predicate.getClass(), annotation.id(), annotation.name());
             if (annotation != null) {
                 predicateMap.put(annotation.id(), predicate);
             }
