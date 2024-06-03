@@ -69,12 +69,13 @@ public class NettyHttpServer implements LifeCycle {
     @Override
     public void start() {
         // 配置netty server
-        this.serverBootstrap.group(eventLoopGroupBoss, eventLoopGroupWorker)
-                .channel(useEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
-                .localAddress(new InetSocketAddress(config.getPort()))
+        this.serverBootstrap
+                .group(eventLoopGroupBoss, eventLoopGroupWorker) // 设置eventLoop
+                .channel(useEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class) // 设置ServerSocketChannel的具体实现
+                .localAddress(new InetSocketAddress(config.getPort())) // 设置监听的端口
                 .childHandler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel channel) throws Exception {
+                    protected void initChannel(Channel channel) throws Exception { // 初始化SocketChannel的处理流程
                         channel.pipeline().addLast(new HttpServerCodec())  // http编解码
                                 .addLast(new HttpObjectAggregator(config.getMaxContentLength())) // 将http报文聚合成FullHttpRequest
                                 .addLast(new NettyServerConnectManagerHandler()) // 管理netty连接

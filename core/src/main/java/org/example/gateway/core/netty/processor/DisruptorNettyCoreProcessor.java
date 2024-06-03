@@ -27,14 +27,14 @@ public class DisruptorNettyCoreProcessor implements NettyProcessor{
     public DisruptorNettyCoreProcessor(Config config, NettyCoreProcessor nettyCoreProcessor) {
         this.config = config;
         this.nettyCoreProcessor = nettyCoreProcessor;
-        // 初始化多生产者多消费者无锁队列
+        // 初始化parallelQueueHandler
         ParallelQueueHandler.Builder builder = new ParallelQueueHandler.Builder().setBufferSize(config.getBufferSize()) // 环形缓冲区的大小
                 .setThreads(this.config.getProcessThread()) // 处理器线程池大小
-                .setProducerType(ProducerType.MULTI) // 生产者类型 单生产者 or 多生产者
+                .setProducerType(ProducerType.MULTI) // 设置多生产者模式
                 .setNamePrefix(THREAD_NAME_PREFIX)
-                .setWaitStrategy(config.getWaitStrategy()) // 消费者阻塞策略
-                .setListener(new BatchEventListenerProcessor(this.nettyCoreProcessor)); // 事件处理器
-        // 创建多生产者多消费者无锁队列
+                .setWaitStrategy(config.getWaitStrategy()) // 消费者的等待策略
+                .setListener(new BatchEventListenerProcessor(this.nettyCoreProcessor));
+        // 创建parallelQueueHandler
         this.parallelQueueHandler = builder.build();
     }
 
@@ -44,7 +44,7 @@ public class DisruptorNettyCoreProcessor implements NettyProcessor{
      */
     @Override
     public void process(HttpRequestWrapper requestWrapper) {
-        // 将请求交给并行队列处理器
+        // 将请求放到环形队列中
         this.parallelQueueHandler.add(requestWrapper);
     }
 

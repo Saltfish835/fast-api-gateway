@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,6 +14,9 @@ import java.util.concurrent.Executors;
  * 基于Disruptor实现的多生产者多消费者的无锁队列
  */
 public class ParallelQueueHandler<E> implements ParallelQueue<E> {
+
+
+    private static final Logger logger = LoggerFactory.getLogger(ParallelQueueHandler.class);
 
 
     private RingBuffer ringBuffer;
@@ -25,6 +30,10 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
     private EventTranslatorOneArg<Holder, E> eventTranslatorOneArg;
 
 
+    /**
+     * 创建多生产者多消费者模式
+     * @param builder
+     */
     public ParallelQueueHandler(Builder<E> builder) {
         this.executorService = Executors.newFixedThreadPool(builder.threads,
                 new ThreadFactoryBuilder().setNameFormat("ParallelQueueHandler "+builder.namePrefix+"-pool-%d").build());
@@ -47,6 +56,10 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
     }
 
 
+    /**
+     * 生产消息
+     * @param event
+     */
     @Override
     public void add(E event) {
         RingBuffer<Holder> holderRingBuffer = ringBuffer;
@@ -55,9 +68,25 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
         }
         try {
             // 往环形缓冲区发布事件
+            logger.info("publish message: {}", event);
             ringBuffer.publishEvent(this.eventTranslatorOneArg, event);
         }catch (NullPointerException e) {
             process(this.eventListener, new IllegalStateException("ParallelQueueHandler is close"), event);
+        }
+    }
+
+
+    /**
+     * 消费消息
+     */
+    private class HolderWorkHandler implements WorkHandler<Holder>{
+        // 当有消息推送到环形队列时，此方法会收到通知被调用
+        @Override
+        public void onEvent(Holder holder) throws Exception {
+            // 调用自定义的具体处理消息的方法
+            logger.info("consume message: {}", holder.getEvent());
+            eventListener.onEvent(holder.getEvent());
+            holder.setEvent(null);
         }
     }
 
@@ -103,6 +132,7 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
     @Override
     public void start() {
         this.ringBuffer = workerPool.start(executorService);
+        logger.info("disruptor start");
     }
 
     @Override
@@ -137,7 +167,7 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
 
 
     /**
-     * 封装环形缓冲区中存放的对象
+     * 消息对象
      */
     private class Holder {
         private E event;
@@ -160,7 +190,7 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
         @Override
         public String toString() {
             return "Holder{" +
-                    "event=" + event +
+                    "event=" + event.toString() +
                     '}';
         }
     }
@@ -233,19 +263,6 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
             return new Holder();
         }
     }
-
-
-    /**
-     * 事件处理器
-     */
-    private class HolderWorkHandler implements WorkHandler<Holder>{
-        @Override
-        public void onEvent(Holder holder) throws Exception {
-            eventListener.onEvent(holder.getEvent());
-            holder.setEvent(null);
-        }
-    }
-
 
     /**
      * 事件处理器

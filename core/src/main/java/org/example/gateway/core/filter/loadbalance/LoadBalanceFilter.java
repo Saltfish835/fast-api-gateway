@@ -22,6 +22,7 @@ public class LoadBalanceFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("LoadBalanceFilter: {}", ctx.toString());
         // 获取负载均衡的规则
         final IGatewayLoadBalanceRule loadBalanceRule = getLoadBalanceRule(ctx);
         // 根据负载均衡的规则拿到一个下游服务实例

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 事件处理器
+ * 消费ringBuffer中的消息
  */
 public class BatchEventListenerProcessor implements EventListener<HttpRequestWrapper> {
 

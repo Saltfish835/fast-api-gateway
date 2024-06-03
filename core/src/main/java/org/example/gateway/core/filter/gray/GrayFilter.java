@@ -6,6 +6,8 @@ import org.example.gateway.common.constants.FilterConst;
 import org.example.gateway.core.context.GatewayContext;
 import org.example.gateway.core.filter.Filter;
 import org.example.gateway.core.filter.FilterAspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 选取灰度服务
@@ -13,8 +15,11 @@ import org.example.gateway.core.filter.FilterAspect;
 @FilterAspect(id= FilterConst.GRAY_FILTER_ID, name = FilterConst.GRAY_FILTER_NAME, order = FilterConst.GRAY_FILTER_ORDER)
 public class GrayFilter implements Filter {
 
+    private static final Logger logger = LoggerFactory.getLogger(GrayFilter.class);
+
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("GrayFilter: {}", ctx.toString());
         // 测试用：请求头中带有gray，则直接认定其为灰度流量
         final String gray = ctx.getRequest().getHttpHeaders().get("gray");
         if("true".equalsIgnoreCase(gray)) {

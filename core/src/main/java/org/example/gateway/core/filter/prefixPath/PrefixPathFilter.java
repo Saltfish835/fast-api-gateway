@@ -20,6 +20,7 @@ public class PrefixPathFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("PrefixPathFilter: {}", ctx.toString());
         // 拿到配置
         PrefixPathFilterConfig prefixPathConfig = (PrefixPathFilterConfig)ctx.getRule().getFilterConfig(FilterConst.PREFIX_PATH_FILTER_ID);
         // 要添加的前缀

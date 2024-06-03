@@ -20,6 +20,7 @@ public class FlowCtlFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("FlowCtlFilter: {}", ctx.toString());
         // 从当前请求的规则中拿到限流配置
         FlowCtlFilterConfig flowCtlConfig = (FlowCtlFilterConfig)ctx.getRule().getFilterConfig(FilterConst.FLOW_CTL_FILTER_ID);
         if(flowCtlConfig == null) {

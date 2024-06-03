@@ -21,6 +21,7 @@ public class StripPrefixFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("StripPrefixFilter: {}", ctx.toString());
         StripPrefixFilterConfig stripPrefixConfig = (StripPrefixFilterConfig)ctx.getRule().getFilterConfig(FilterConst.STRIP_PREFIX_FILTER_ID);
         if(stripPrefixConfig == null) {
             return;

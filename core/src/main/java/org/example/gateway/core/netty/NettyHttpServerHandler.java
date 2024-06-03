@@ -7,6 +7,9 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import org.example.gateway.core.context.HttpRequestWrapper;
 import org.example.gateway.core.netty.processor.NettyProcessor;
 
+/**
+ * 自定义入站处理器
+ */
 public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
     private final NettyProcessor nettyProcessor;
@@ -15,6 +18,13 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
         this.nettyProcessor = nettyProcessor;
     }
 
+
+    /**
+     * 处理SocketChannel的读事件
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         FullHttpRequest request = (FullHttpRequest) msg;
@@ -27,6 +37,12 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
 
+    /**
+     * 处理异常事件
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);

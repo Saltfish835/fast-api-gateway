@@ -27,6 +27,7 @@ public class AuthFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("AuthFilter: {}", ctx.toString());
         // 检查是否需要鉴权
         if(ctx.getRule().getFilterConfig(FilterConst.USER_AUTH_FILTER_ID) == null) {
             return;

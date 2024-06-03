@@ -59,6 +59,7 @@ public class MonitorEndFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("MonitorEndFilter: {}", ctx.toString());
         final Timer timer = prometheusMeterRegistry.timer("gateway_request", "uniqueId", ctx.getUniqueId(),
                 "protocol", ctx.getProtocol(), "path", ctx.getRequest().getPath());
         ctx.getTimerSample().stop(timer);

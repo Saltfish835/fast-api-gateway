@@ -24,6 +24,7 @@ public class MyRouterFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("MyRouterFilter: {}", ctx.toString());
         // 拿到执行器
         final IExecutor executor = getExecutor(ctx);
         if(executor == null) {

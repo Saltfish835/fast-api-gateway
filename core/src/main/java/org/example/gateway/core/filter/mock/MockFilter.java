@@ -20,6 +20,7 @@ public class MockFilter implements Filter {
 
     @Override
     public void doFilter(GatewayContext ctx) throws Exception {
+        logger.debug("MockFilter: {}", ctx.toString());
         MockFilterConfig mockConfig = (MockFilterConfig)ctx.getRule().getFilterConfig(FilterConst.MOCK_FILTER_ID);
         if(mockConfig == null) {
             return;
